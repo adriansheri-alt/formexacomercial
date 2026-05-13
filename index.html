@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FFFFFF">
+<title>Formexa · Bitácora Comercial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1A5C38;
+    --green-dark: #0D3520;
+    --green-light: #2E7D52;
+    --green-bg: #E8F0EB;
+    --red: #BE1E2D;
+    --red-dark: #8B1C1C;
+    --red-bg: #FBEAEC;
+    --bg: #FFFFFF;
+    --bg-alt: #F7F7F5;
+    --card: #FFFFFF;
+    --text: #111111;
+    --text-2: #3F3F3F;
+    --text-3: #5C5C5C;
+    --text-4: #8A8A8A;
+    --border: #E4E4E2;
+    --border-strong: #C9C9C5;
+    --ok-bg: #E1EFE5;
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+    --radius: 10px;
+    --radius-sm: 8px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overscroll-behavior: none; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-bottom: env(safe-area-inset-bottom);
+    letter-spacing: -0.005em;
+  }
+
+  /* ===== LOGO ===== */
+  .fx-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+  }
+  .fx-logo .mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: -0.04em;
+    position: relative;
+  }
+  .fx-logo .mark::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 4px;
+    height: 4px;
+    background: var(--red);
+    border-radius: 50%;
+  }
+  .fx-logo .wordmark {
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.18em;
+    color: var(--text);
+  }
+  .fx-logo .wordmark .sub {
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    font-size: 10px;
+    text-transform: uppercase;
+    display: block;
+    margin-top: 1px;
+  }
+
+  /* ===== LOGIN ===== */
+  #login {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--bg);
+  }
+  .login-card {
+    background: var(--card);
+    border-radius: var(--radius-lg);
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--border);
+  }
+  .login-card .brand-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .login-card .fx-logo .mark { width: 40px; height: 40px; font-size: 22px; border-radius: 8px; }
+  .login-card .fx-logo .mark::after { width: 5px; height: 5px; bottom: 5px; right: 5px; }
+  .login-card .fx-logo .wordmark { font-size: 17px; }
+  .login-card h1 {
+    font-weight: 700;
+    font-size: 22px;
+    line-height: 1.2;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .login-card .sub { color: var(--text-3); font-size: 14px; }
+  .login-card label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-3);
+    margin-bottom: 10px;
+    margin-top: 28px;
+  }
+  .user-list { display: flex; flex-direction: column; gap: 8px; }
+  .user-pick {
+    background: var(--bg-alt);
+    border: 1.5px solid var(--border);
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    text-align: left;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    transition: all .15s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: inherit;
+  }
+  .user-pick:hover, .user-pick:active {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+  .user-pick .avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .user-pick .role { font-size: 12px; color: var(--text-3); margin-top: 2px; font-weight: 500; }
+
+  /* ===== APP SHELL ===== */
+  #app { display: none; min-height: 100vh; min-height: 100dvh; padding-bottom: 90px; background: var(--bg); }
+  #app.active { display: block; }
+
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding-top: max(12px, env(safe-area-inset-top));
+  }
+  .header .user-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-alt);
+    padding: 5px 10px 5px 5px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: inherit;
+  }
+  .header .user-chip .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .header .user-chip .chev { width: 14px; height: 14px; color: var(--text-3); }
+
+  /* ===== USER MENU ===== */
+  .user-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .user-menu.active { display: flex; }
+  .user-menu-content {
+    background: var(--card);
+    width: 100%;
+    max-width: 480px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+    animation: slideUp .25s ease;
+  }
+  .user-menu-info {
+    padding: 16px 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+  }
+  .user-menu-info .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .user-menu-info .name { font-weight: 700; font-size: 15px; color: var(--text); }
+  .user-menu-info .role { font-size: 13px; color: var(--text-3); font-weight: 500; }
+  .user-menu-item {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 14px 16px;
+    text-align: left;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .user-menu-item:hover { background: var(--bg-alt); }
+  .user-menu-item.danger { color: var(--red); }
+  .user-menu-item svg { width: 18px; height: 18px; stroke-width: 2; }
+
+  /* ===== BOTTOM NAV ===== */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 20;
+    padding-bottom: env(safe-area-inset-bottom);
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.03);
+  }
+  .nav-item {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 10px 4px 12px;
+    font-family: inherit;
+    color: var(--text-3);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+  .nav-item.active { color: var(--green); }
+  .nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+  .nav-fab {
+    flex: 0 0 auto;
+    margin-top: -22px;
+    padding: 0 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .nav-fab button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--green);
+    color: white;
+    border: none;
+    box-shadow: 0 6px 18px rgba(26,92,56,0.35);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-fab .fab-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    margin-top: 4px;
+    letter-spacing: -0.005em;
+  }
+  .nav-fab button:active { transform: scale(0.96); }
+  .nav-fab svg { width: 26px; height: 26px; stroke-width: 2.2; }
+
+  /* ===== VIEWS ===== */
+  .view { display: none; padding: 22px 18px 24px; }
+  .view.active { display: block; }
+  .view h2 {
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: -0.025em;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .view .view-sub { color: var(--text-3); font-size: 14px; margin-bottom: 18px; font-weight: 500; }
+
+  /* ===== STATS ===== */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+  }
+  .stat-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    font-weight: 700;
+    font-size: 26px;
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+  .stat-card .delta { font-size: 12px; color: var(--text-3); margin-top: 4px; font-weight: 500; }
+  .stat-card.accent .value { color: var(--green); }
+
+  /* ===== FILTERS ===== */
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    margin: -4px -18px 16px;
+    padding: 4px 18px;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .chip {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 7px 13px;
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    color: var(--text-2);
+    font-family: inherit;
+  }
+  .chip.active { background: var(--green); color: white; border-color: var(--green); }
+
+  /* ===== VISIT CARD ===== */
+  .visit-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .visit-card:active { border-color: var(--green); }
+  .visit-card .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .visit-card .client {
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.25;
+    color: var(--text);
+  }
+  .visit-card .meta {
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 4px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-weight: 500;
+  }
+  .visit-card .meta .dot { width: 3px; height: 3px; background: var(--text-4); border-radius: 50%; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .badge-oc  { background: var(--ok-bg);  color: var(--green-dark); }
+  .badge-cot { background: #FFF4D6; color: #7A5A00; }
+  .badge-int { background: #DFEAFA; color: #1742A0; }
+  .badge-no  { background: #EEEEEE; color: var(--text-2); }
+  .badge-fu  { background: var(--red-bg); color: var(--red-dark); }
+  .badge-rel { background: #EFE7DA; color: #5E4923; }
+  .visit-card .summary {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 10px;
+    font-weight: 500;
+  }
+  .visit-card .footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .visit-card .next {
+    color: var(--text-2);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+  .visit-card .next b { color: var(--text); font-weight: 700; }
+  .visit-card .responsible {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--green);
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+  .visit-card .own-tag {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--green);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ===== EMPTY ===== */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-3);
+  }
+  .empty svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.5; }
+  .empty .title { font-weight: 700; font-size: 17px; color: var(--text-2); margin-bottom: 6px; }
+  .empty .sub { font-size: 14px; color: var(--text-3); font-weight: 500; }
+
+  /* ===== FORM ===== */
+  .form-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 100;
+    overflow-y: auto;
+    display: none;
+    flex-direction: column;
+  }
+  .form-screen.active { display: flex; }
+  .form-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    padding-top: max(12px, env(safe-area-inset-top));
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 5;
+  }
+  .form-header .title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .icon-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--text-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-btn svg { width: 22px; height: 22px; stroke-width: 2; }
+
+  .form-body { padding: 16px 18px 100px; flex: 1; }
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    margin-bottom: 8px;
+  }
+  .field label .opt { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--text-4); }
+  .field input[type="text"],
+  .field input[type="number"],
+  .field input[type="date"],
+  .field input[type="search"],
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    background: var(--card);
+    color: var(--text);
+    -webkit-appearance: none;
+    appearance: none;
+    font-weight: 500;
+  }
+  .field input::placeholder, .field textarea::placeholder { color: var(--text-4); font-weight: 400; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+  .field textarea { resize: vertical; min-height: 72px; line-height: 1.4; }
+
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .option-btn {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    padding: 12px 12px;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    color: var(--text);
+    transition: all .15s;
+    line-height: 1.25;
+  }
+  .option-btn.selected {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green-dark);
+  }
+  .option-btn .emoji { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .toggle-row .lbl { font-weight: 600; font-size: 14px; color: var(--text); }
+  .toggle-row .lbl .desc { display: block; font-size: 12px; color: var(--text-3); font-weight: 500; margin-top: 2px; }
+  .toggle {
+    width: 44px;
+    height: 26px;
+    background: var(--border-strong);
+    border-radius: 100px;
+    position: relative;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    top: 2px;
+    left: 2px;
+    transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-row.on .toggle { background: var(--green); }
+  .toggle-row.on .toggle::after { transform: translateX(18px); }
+
+  .conditional { display: none; margin-top: 12px; }
+  .conditional.active { display: block; }
+
+  .form-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    padding: 12px 18px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    display: flex;
+    gap: 10px;
+    z-index: 6;
+  }
+  .btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity .15s;
+    letter-spacing: -0.005em;
+  }
+  .btn-primary { background: var(--green); color: white; }
+  .btn-primary:disabled { opacity: 0.5; }
+  .btn-ghost { background: var(--bg-alt); color: var(--text-2); flex: 0 0 auto; padding: 14px 18px; border: 1px solid var(--border); }
+  .btn-danger { background: var(--red); color: white; }
+
+  .btn-register-big {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    letter-spacing: -0.005em;
+    box-shadow: 0 4px 12px rgba(26,92,56,0.25);
+  }
+  .btn-register-big:active { transform: scale(0.99); }
+  .btn-register-big svg { width: 18px; height: 18px; }
+
+  /* ===== CLIENT SEARCH ===== */
+  .client-input-wrap { position: relative; }
+  .client-results {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    max-height: 260px;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+  }
+  .client-results.active { display: block; }
+  .client-result {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .client-result:last-child { border-bottom: none; }
+  .client-result:hover, .client-result.active { background: var(--green-bg); }
+  .client-result .type {
+    font-size: 11px;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+    font-weight: 600;
+  }
+  .client-result.new { color: var(--green); }
+
+  /* ===== DETAIL MODAL ===== */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: var(--card);
+    width: 100%;
+    max-width: 560px;
+    max-height: 92vh;
+    overflow-y: auto;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 22px 20px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-content h3 {
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .modal-content .modal-meta {
+    color: var(--text-3);
+    font-size: 13px;
+    margin-bottom: 18px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-weight: 500;
+  }
+  .detail-section { margin-bottom: 18px; }
+  .detail-section .lbl {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .detail-section .val { font-size: 15px; line-height: 1.5; color: var(--text); font-weight: 500; }
+  .next-block {
+    background: var(--green-bg);
+    border-left: 3px solid var(--green);
+    padding: 12px 14px;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-top: 6px;
+  }
+  .next-block .what { font-weight: 700; margin-bottom: 4px; color: var(--text); }
+  .next-block .who { font-size: 13px; color: var(--green-dark); font-weight: 600; }
+
+  /* ===== PENDING ===== */
+  .pending-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--red);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 8px;
+  }
+  .pending-card .what { font-weight: 700; margin-bottom: 4px; font-size: 14px; color: var(--text); }
+  .pending-card .ctx { font-size: 13px; color: var(--text-2); margin-bottom: 6px; font-weight: 500; }
+  .pending-card .ctx b { font-weight: 700; color: var(--text); }
+  .pending-card .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-3);
+    font-weight: 500;
+  }
+  .pending-card.done { opacity: 0.5; border-left-color: var(--text-4); }
+  .pending-card.done .what { text-decoration: line-through; }
+  .mark-done {
+    background: white;
+    border: 1px solid var(--border-strong);
+    padding: 5px 11px;
+    border-radius: 100px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-2);
+    font-family: inherit;
+    font-weight: 600;
+  }
+  .mark-done:hover { border-color: var(--green); color: var(--green); }
+
+  /* ===== UTIL ===== */
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .text-mini { font-size: 12px; color: var(--text-3); font-weight: 500; }
+
+  @media (min-width: 720px) {
+    .view, .form-body { max-width: 720px; margin-left: auto; margin-right: auto; }
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    .options-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--text);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 300;
+    box-shadow: var(--shadow-lg);
+    transition: transform .3s ease;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login">
+  <div class="login-card">
+    <div class="brand-row">
+      <div class="fx-logo">
+        <div class="mark">F</div>
+        <div class="wordmark">FORMEXA<span class="sub">Bitácora Comercial</span></div>
+      </div>
+    </div>
+    <h1>Reportes de visita</h1>
+    <div class="sub">Registra cada cita en menos de 2 minutos</div>
+    <label>Identifícate</label>
+    <div class="user-list" id="userList"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="fx-logo">
+      <div class="mark">F</div>
+      <div class="wordmark">FORMEXA</div>
+    </div>
+    <button class="user-chip" onclick="openUserMenu()">
+      <span class="avatar" id="headerAvatar">A</span>
+      <span id="headerName">—</span>
+      <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+  </div>
+
+  <!-- VIEW: FEED -->
+  <div class="view active" id="view-feed">
+    <h2>Historial de visitas</h2>
+    <div class="view-sub">Todo lo registrado en ruta</div>
+
+    <button class="btn-register-big" onclick="openVisitForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      Registrar nueva visita
+    </button>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="filter-bar" id="filterBar"></div>
+
+    <div id="visitList"></div>
+  </div>
+
+  <!-- VIEW: PENDIENTES -->
+  <div class="view" id="view-pending">
+    <h2>Pendientes</h2>
+    <div class="view-sub">Acciones derivadas de visitas</div>
+
+    <div class="filter-bar" id="pendingFilter"></div>
+
+    <div id="pendingList"></div>
+  </div>
+
+  <!-- VIEW: CUENTAS -->
+  <div class="view" id="view-clients">
+    <h2>Clientes</h2>
+    <div class="view-sub">Base de datos completa</div>
+
+    <div class="field" style="margin-bottom: 14px;">
+      <input type="search" id="clientSearch" placeholder="Buscar cliente o prospecto..." oninput="renderClients()">
+    </div>
+
+    <div class="filter-bar" id="clientFilter">
+      <button class="chip active" onclick="setClientFilter('all', this)">Todos</button>
+      <button class="chip" onclick="setClientFilter('won', this)">Activos</button>
+      <button class="chip" onclick="setClientFilter('negotiation', this)">Negociación</button>
+      <button class="chip" onclick="setClientFilter('new', this)">Prospectos</button>
+    </div>
+
+    <div id="clientList"></div>
+
+    <div class="row" style="margin-top: 16px;">
+      <button class="btn btn-ghost" style="flex: 1;" onclick="importClients()">Importar más</button>
+      <button class="btn btn-ghost" style="flex: 1;" onclick="exportData()">Exportar todo</button>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="feed" onclick="switchView('feed', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Visitas
+    </button>
+    <button class="nav-item" data-view="pending" onclick="switchView('pending', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      Pendientes
+      <span id="pendingBadge" style="display:none;position:absolute;top:6px;right:14px;background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 5px;border-radius:100px;min-width:16px;text-align:center;">0</span>
+    </button>
+    <div class="nav-fab">
+      <button onclick="openVisitForm()" aria-label="Registrar visita">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <div class="fab-label">Registrar</div>
+    </div>
+    <button class="nav-item" data-view="clients" onclick="switchView('clients', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 11a4 4 0 11-8 0 4 4 0 018 0zM12 14c-3.5 0-7 1.5-7 5v1h14v-1c0-3.5-3.5-5-7-5z"/></svg>
+      Clientes
+    </button>
+    <button class="nav-item" style="visibility:hidden">_</button>
+  </nav>
+</div>
+
+<!-- USER MENU -->
+<div class="user-menu" id="userMenu" onclick="if(event.target===this) closeUserMenu()">
+  <div class="user-menu-content">
+    <div class="user-menu-info">
+      <div class="avatar" id="menuAvatar">A</div>
+      <div>
+        <div class="name" id="menuName">—</div>
+      </div>
+    </div>
+    <button class="user-menu-item danger" onclick="logout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      Cerrar sesión
+    </button>
+    <button class="user-menu-item" onclick="closeUserMenu()" style="color: var(--text-3); justify-content: center;">Cancelar</button>
+  </div>
+</div>
+
+<!-- FORM SCREEN -->
+<div class="form-screen" id="formScreen">
+  <div class="form-header">
+    <button class="icon-btn" onclick="closeVisitForm()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="title">Nueva visita</div>
+    <div style="width: 38px"></div>
+  </div>
+
+  <div class="form-body">
+    <div class="field">
+      <label>Cliente o prospecto</label>
+      <div class="client-input-wrap">
+        <input type="text" id="f_client" placeholder="Escribe el nombre..." oninput="searchClients()" onfocus="searchClients()" autocomplete="off">
+        <div class="client-results" id="clientResults"></div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Fecha de visita</label>
+        <input type="date" id="f_date">
+      </div>
+      <div class="field">
+        <label>Ciudad <span class="opt">(opc.)</span></label>
+        <input type="text" id="f_city" placeholder="Houston, Dallas...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Resultado de la visita</label>
+      <div class="options-grid" id="resultOptions">
+        <button type="button" class="option-btn" data-value="oc">
+          <span class="emoji">✅</span>Cerró OC
+        </button>
+        <button type="button" class="option-btn" data-value="cot">
+          <span class="emoji">📝</span>Pidió cotización
+        </button>
+        <button type="button" class="option-btn" data-value="int">
+          <span class="emoji">👀</span>Interesado
+        </button>
+        <button type="button" class="option-btn" data-value="rel">
+          <span class="emoji">🤝</span>Relación
+        </button>
+        <button type="button" class="option-btn" data-value="fu">
+          <span class="emoji">⏳</span>Follow-up
+        </button>
+        <button type="button" class="option-btn" data-value="no">
+          <span class="emoji">⛔</span>No interesado
+        </button>
+      </div>
+    </div>
+
+    <div class="toggle-row" id="ocToggle" onclick="toggle('oc')">
+      <div class="lbl">
+        ¿Colocó orden de compra?
+        <span class="desc">Aunque sea preliminar</span>
+      </div>
+      <div class="toggle"></div>
+    </div>
+    <div class="conditional" id="ocFields">
+      <div class="row" style="margin-top: 12px;">
+        <div class="field" style="margin-bottom: 0;">
+          <label>Monto aprox <span class="opt">(USD)</span></label>
+          <input type="number" id="f_ocAmount" placeholder="0" inputmode="numeric">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label>Entrega <span class="opt">(opc.)</span></label>
+          <input type="text" id="f_ocDelivery" placeholder="2 sem">
+        </div>
+      </div>
+      <div class="field" style="margin-top: 12px;">
+        <label>Productos clave</label>
+        <textarea id="f_ocProducts" placeholder="Ej: 200 cajas Suavitel, 50 cajas P&G..."></textarea>
+      </div>
+    </div>
+
+    <div class="toggle-row" id="missingToggle" onclick="toggle('missing')" style="margin-top: 14px;">
+      <div class="lbl">
+        ¿Pidió algo que no tenemos?
+        <span class="desc">Producto, marca o referencia</span>
+      </div>
+      <div class="toggle"></div>
+    </div>
+    <div class="conditional" id="missingFields">
+      <div class="field" style="margin-top: 12px;">
+        <textarea id="f_missing" placeholder="Ej: piden Maseca 5lb, no la traemos..."></textarea>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top: 18px;">
+      <label>Feedback de precios <span class="opt">(opc.)</span></label>
+      <textarea id="f_pricing" placeholder="¿Algún SKU caro? ¿Competencia más barata?"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Próximo paso</label>
+      <input type="text" id="f_nextWhat" placeholder="Ej: Mandar cotización con flete CIF">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Responsable</label>
+        <select id="f_nextWho">
+          <option value="">—</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Fecha objetivo <span class="opt">(opc.)</span></label>
+        <input type="date" id="f_nextDate">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Notas adicionales <span class="opt">(opc.)</span></label>
+      <textarea id="f_notes" placeholder="Cualquier contexto extra para el equipo..."></textarea>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn btn-ghost" onclick="closeVisitForm()">Cancelar</button>
+    <button class="btn btn-primary" id="saveBtn" onclick="saveVisit()">Guardar visita</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal" id="detailModal" onclick="if(event.target===this) closeDetail()">
+  <div class="modal-content" id="detailContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============== USUARIOS (login) ==============
+const USERS = [
+  { id: 'aaguirre',  name: 'Alejandro Aguirre',  short: 'Alejandro', role: 'Director Comercial EE.UU.' },
+  { id: 'florencia', name: 'Florencia Hinojosa', short: 'Florencia', role: 'Directora General Operativa' },
+  { id: 'adrian',    name: 'Adrián Sheridan',    short: 'Adrián',    role: 'Socio Estratégico' }
+];
+
+// ============== EQUIPO (para responsable de próximos pasos) ==============
+const TEAM = [
+  { id: 'aaguirre',   name: 'Alejandro Aguirre',         short: 'Alejandro' },
+  { id: 'tolin',      name: 'Héctor "Tolín" González',   short: 'Tolín' },
+  { id: 'mike',       name: 'Luis Miguel Pérez',         short: 'Mike' },
+  { id: 'mfernandez', name: 'Manuel Fernández',          short: 'Manuel' },
+  { id: 'florencia',  name: 'Florencia Hinojosa',        short: 'Florencia' },
+  { id: 'adrian',     name: 'Adrián Sheridan',           short: 'Adrián' },
+  { id: 'mariana',    name: 'Mariana Ordóñez',           short: 'Mariana' },
+  { id: 'erick',      name: 'Erick Alcántara',           short: 'Erick' },
+  { id: 'ruben',      name: 'Rubén Fernández',           short: 'Rubén' },
+  { id: 'yair',       name: 'Yair Durán',                short: 'Yair' },
+  { id: 'sergio',     name: 'Sergio Borunda',            short: 'Borunda' }
+];
+
+function findTeam(id) { return TEAM.find(t => t.id === id); }
+
+// ============== CLIENTES (base de datos Notion) ==============
+const SAMPLE_CLIENTS = [
+  { name: 'Gromex',                      stage: 'negotiation', contact: 'Miguel',       phone: '+1 (973) 819-8896', place: 'New Jersey, NY', credit: '', email: '' },
+  { name: 'La Tortilleria',              stage: 'won',         contact: 'Rick Calabro', phone: '+1 (336) 773-0010', place: 'Charlotte, NC',  credit: '7 días con factoraje o 30 días', email: '' },
+  { name: 'Comercial Mexicana',          stage: 'won',         contact: 'Oscar',        phone: '+1 (516) 928-1415', place: 'New Jersey, NY', credit: '30 días', email: 'purchasing@comercialmexicanaint.com' },
+  { name: 'MexMore',                     stage: 'won',         contact: '', phone: '', place: '', credit: '10 días', email: '' },
+  { name: 'Frontera Imports',            stage: 'won',         contact: '', phone: '', place: '', credit: '30 días', email: '' },
+  { name: 'Souto Foods',                 stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'PD Distribution',             stage: 'negotiation', contact: 'Ari', phone: '+1 (201) 248-0625', place: '', credit: '', email: '' },
+  { name: 'Sunmex',                      stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'The Bee',                     stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Rio Grande',                  stage: 'won',         contact: '', phone: '', place: '', credit: '14 días', email: '' },
+  { name: 'Bodega Guzman',               stage: 'won',         contact: '', phone: '', place: '', credit: 'Contado', email: '' },
+  { name: 'BT Wholesale',                stage: 'won',         contact: '', phone: '', place: '', credit: '21 días', email: '' },
+  { name: 'RJ Hispanic',                 stage: 'won',         contact: '', phone: '', place: '', credit: 'Contado', email: '' },
+  { name: 'Zaya Brands',                 stage: 'won',         contact: '', phone: '', place: '', credit: 'Contado', email: '' },
+  { name: 'La Bodega',                   stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'New Age Distribution',        stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Border Cash & Carry',         stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Blu Brands',                  stage: 'won',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'La Michocana',                stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Rancho',                   stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Alliance',                    stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Metrostar',                   stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Potros Distribution',         stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Mexico Central',              stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Very Best Virginia',          stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Importmex',                   stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Casa Ruiz',                   stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Paisano',                  stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Abarrotera Central',          stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Covemex',                     stage: 'negotiation', contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Encanto',                  stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Fiesta Market',               stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Bodega San Marco',            stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Nogales Produce',             stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Quedake',                     stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'La Silla',                    stage: 'won',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Latinos Distributors',        stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'San Martin Distributor',      stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Guero Supermarket',        stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Atlantic Wholesale',          stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Paisano Indianapolis',     stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Value Wholesale',             stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Inkas',                       stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'SaveAlot',                    stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Dallas Produce',              stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Valentina Distributor',       stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Fiesta Wholesale',            stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Mi Tienda',                   stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'La Michoacana Meat Market',   stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'El Rancho Supermercado',      stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Fiesta Mart',                 stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Mi Bodega Cash & Carry',      stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Brisber LLC',                 stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Valley Brokers',              stage: '',            contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Pamex',                       stage: 'won',         contact: '', phone: '', place: '3015 Kaverton Rd, District Heights, MD 20747', credit: '', email: '' },
+  { name: 'La Estrellita',               stage: 'won',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'La Bodega de Arkansas',       stage: 'won',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Abarrotes del Sur',           stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' },
+  { name: 'Central Food Distributors',   stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' }
+];
+
+const STAGE_LABELS = {
+  won:         { label: 'Activo',      badge: 'badge-oc'  },
+  negotiation: { label: 'Negociación', badge: 'badge-cot' },
+  new:         { label: 'Prospecto',   badge: 'badge-int' },
+  '':          { label: 'Sin clasificar', badge: 'badge-no' }
+};
+
+const RESULT_LABELS = {
+  oc:  { label: 'Cerró OC',           badge: 'badge-oc'  },
+  cot: { label: 'Pidió cotización',   badge: 'badge-cot' },
+  int: { label: 'Interesado',         badge: 'badge-int' },
+  rel: { label: 'Visita de relación', badge: 'badge-rel' },
+  fu:  { label: 'Follow-up',          badge: 'badge-fu'  },
+  no:  { label: 'No interesado',      badge: 'badge-no'  }
+};
+
+// ============== STATE ==============
+let state = {
+  user: null,
+  visits: [],
+  clients: [],
+  currentFilter: 'all',
+  currentPendingFilter: 'mine',
+  clientFilter: 'all',
+  formState: { oc: false, missing: false, result: null }
+};
+
+const DB_VERSION = 2;
+
+// ============== STORAGE ==============
+function loadData() {
+  try {
+    state.visits = JSON.parse(localStorage.getItem('fx_visits') || '[]');
+    const savedVersion = parseInt(localStorage.getItem('fx_db_version') || '0');
+    if (savedVersion < DB_VERSION) {
+      state.clients = [...SAMPLE_CLIENTS];
+      localStorage.setItem('fx_db_version', DB_VERSION);
+      saveData();
+    } else {
+      state.clients = JSON.parse(localStorage.getItem('fx_clients') || 'null') || SAMPLE_CLIENTS;
+    }
+  } catch(e) {
+    state.visits = [];
+    state.clients = [...SAMPLE_CLIENTS];
+  }
+}
+function saveData() {
+  localStorage.setItem('fx_visits',  JSON.stringify(state.visits));
+  localStorage.setItem('fx_clients', JSON.stringify(state.clients));
+}
+
+function initials(name) {
+  return name.replace(/"/g, '').split(' ').filter(w => w.length > 1).slice(0, 2).map(w => w[0]).join('');
+}
+
+// ============== LOGIN ==============
+function renderLogin() {
+  const list = document.getElementById('userList');
+  list.innerHTML = USERS.map(u => `
+    <button class="user-pick" onclick="login('${u.id}')">
+      <span class="avatar">${initials(u.name)}</span>
+      <span>${u.name}</span>
+    </button>
+  `).join('');
+}
+
+function login(userId) {
+  const user = USERS.find(u => u.id === userId);
+  if (!user) return;
+  state.user = user;
+  localStorage.setItem('fx_user', userId);
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  document.getElementById('headerName').textContent   = user.short;
+  document.getElementById('headerAvatar').textContent = initials(user.name);
+  document.getElementById('menuName').textContent     = user.name;
+  document.getElementById('menuAvatar').textContent   = initials(user.name);
+  setupFilters();
+  populateUserSelects();
+  render();
+}
+
+function openUserMenu()  { document.getElementById('userMenu').classList.add('active'); }
+function closeUserMenu() { document.getElementById('userMenu').classList.remove('active'); }
+
+function logout() {
+  localStorage.removeItem('fx_user');
+  state.user = null;
+  closeUserMenu();
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('login').style.display = 'flex';
+  switchView('feed', document.querySelector('.nav-item[data-view="feed"]'));
+}
+
+// ============== FILTROS ==============
+function setupFilters() {
+  document.getElementById('filterBar').innerHTML = `
+    <button class="chip active" onclick="setFilter('all', this)">Todas</button>
+    <button class="chip" onclick="setFilter('mine', this)">Solo mías</button>
+    <button class="chip" onclick="setFilter('oc', this)">Con OC</button>
+    <button class="chip" onclick="setFilter('cot', this)">Cotización</button>
+    <button class="chip" onclick="setFilter('int', this)">Interés</button>
+    <button class="chip" onclick="setFilter('fu', this)">Follow-up</button>
+  `;
+  document.getElementById('pendingFilter').innerHTML = `
+    <button class="chip active" onclick="setPendingFilter('mine', this)">Asignados a mí</button>
+    <button class="chip" onclick="setPendingFilter('all', this)">Todos abiertos</button>
+    <button class="chip" onclick="setPendingFilter('done', this)">Completados</button>
+  `;
+}
+
+// ============== RENDER ==============
+function render() {
+  renderStats();
+  renderVisits();
+  renderPending();
+  renderClients();
+  updatePendingBadge();
+}
+
+function renderStats() {
+  const grid = document.getElementById('statsGrid');
+  const all  = state.visits;
+
+  const weekAgo    = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weekVisits = all.filter(v => new Date(v.date).getTime() >= weekAgo);
+  const ocVisits   = all.filter(v => v.hasOc);
+  const ocTotal    = ocVisits.reduce((s, v) => s + (Number(v.ocAmount) || 0), 0);
+  const myVisits   = all.filter(v => v.user === state.user.id);
+
+  grid.innerHTML = `
+    <div class="stat-card">
+      <div class="label">Esta semana</div>
+      <div class="value">${weekVisits.length}</div>
+      <div class="delta">visitas del equipo</div>
+    </div>
+    <div class="stat-card accent">
+      <div class="label">OCs cerradas</div>
+      <div class="value">${ocVisits.length}</div>
+      <div class="delta">$${ocTotal.toLocaleString('en-US')} USD</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Mis visitas</div>
+      <div class="value">${myVisits.length}</div>
+      <div class="delta">total registradas</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Mis pendientes</div>
+      <div class="value">${countMyPendings()}</div>
+      <div class="delta">asignados a mí</div>
+    </div>
+  `;
+}
+
+function renderVisits() {
+  const list = document.getElementById('visitList');
+  let visits = [...state.visits];
+
+  const f = state.currentFilter;
+  if (f === 'mine')      visits = visits.filter(v => v.user === state.user.id);
+  else if (f === 'oc')   visits = visits.filter(v => v.result === 'oc');
+  else if (f === 'cot')  visits = visits.filter(v => v.result === 'cot');
+  else if (f === 'int')  visits = visits.filter(v => v.result === 'int');
+  else if (f === 'fu')   visits = visits.filter(v => v.result === 'fu');
+  else if (USERS.find(u => u.id === f)) visits = visits.filter(v => v.user === f);
+
+  visits.sort((a, b) => new Date(b.date) - new Date(a.date) || b.createdAt - a.createdAt);
+
+  if (visits.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <div class="title">Aún no hay visitas</div>
+        <div class="sub">Toca el botón + para registrar la primera</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = visits.map(v => {
+    const user = USERS.find(u => u.id === v.user);
+    const result = RESULT_LABELS[v.result];
+    const responsibleUser = v.nextWho ? findTeam(v.nextWho) : null;
+    const isMine = v.user === state.user.id;
+    return `
+      <div class="visit-card" onclick="openDetail('${v.id}')">
+        <div class="top">
+          <div>
+            <div class="client">${escapeHtml(v.client)}${isMine ? '<span class="own-tag">Mía</span>' : ''}</div>
+            <div class="meta">
+              <span>${formatDate(v.date)}</span>
+              <span class="dot"></span>
+              <span>${user ? user.short : '—'}</span>
+              ${v.city ? `<span class="dot"></span><span>${escapeHtml(v.city)}</span>` : ''}
+            </div>
+          </div>
+          <span class="badge ${result.badge}">${result.label}</span>
+        </div>
+        ${v.hasOc ? `<div class="summary"><b>OC:</b> $${Number(v.ocAmount).toLocaleString('en-US')} USD${v.ocProducts ? ' · ' + escapeHtml(v.ocProducts) : ''}</div>` : ''}
+        ${!v.hasOc && v.notes ? `<div class="summary">${escapeHtml(v.notes)}</div>` : ''}
+        ${!v.hasOc && !v.notes && v.missing ? `<div class="summary"><b>Pidieron:</b> ${escapeHtml(v.missing)}</div>` : ''}
+        ${v.nextWhat ? `
+          <div class="footer">
+            <div class="next"><b>Sigue:</b> ${escapeHtml(v.nextWhat)}</div>
+            ${responsibleUser ? `<div class="responsible">→ ${responsibleUser.short}</div>` : ''}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPending() {
+  const list = document.getElementById('pendingList');
+  const filter = state.currentPendingFilter;
+
+  let items = [];
+  state.visits.forEach(v => {
+    if (!v.nextWhat) return;
+    if (filter === 'mine' && v.nextWho !== state.user.id) return;
+    if (filter === 'done' && !v.nextDone) return;
+    if (filter === 'all'  &&  v.nextDone) return;
+    items.push(v);
+  });
+
+  items.sort((a,b) => {
+    if (a.nextDate && b.nextDate) return new Date(a.nextDate) - new Date(b.nextDate);
+    if (a.nextDate) return -1;
+    if (b.nextDate) return 1;
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  if (items.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+        <div class="title">Sin pendientes</div>
+        <div class="sub">${filter === 'done' ? 'No hay tareas completadas aún' : 'Todo bajo control'}</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = items.map(v => {
+    const fromUser = USERS.find(u => u.id === v.user);
+    const toUser   = findTeam(v.nextWho);
+    const canMark  = v.nextWho === state.user.id || v.user === state.user.id;
+    return `
+      <div class="pending-card ${v.nextDone ? 'done' : ''}">
+        <div class="what">${escapeHtml(v.nextWhat)}</div>
+        <div class="ctx"><b>${escapeHtml(v.client)}</b> · ${fromUser ? fromUser.short : ''} ${v.nextDone ? '' : '→ ' + (toUser ? toUser.short : '—')}</div>
+        <div class="meta-row">
+          <span>${v.nextDate ? '📅 ' + formatDate(v.nextDate) : 'Sin fecha'}</span>
+          ${canMark ? `<button class="mark-done" onclick="togglePending('${v.id}')">${v.nextDone ? 'Reabrir' : 'Marcar listo'}</button>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderClients() {
+  const list = document.getElementById('clientList');
+  const q = (document.getElementById('clientSearch')?.value || '').toLowerCase();
+  const stageFilter = state.clientFilter || 'all';
+  let clients = state.clients;
+  if (q) clients = clients.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.place || '').toLowerCase().includes(q) ||
+    (c.contact || '').toLowerCase().includes(q)
+  );
+  if (stageFilter !== 'all') clients = clients.filter(c => (c.stage || '') === stageFilter);
+
+  clients = clients.map(c => {
+    const visits = state.visits.filter(v => v.client === c.name);
+    const lastVisit = visits.sort((a,b) => new Date(b.date) - new Date(a.date))[0];
+    return { ...c, visitCount: visits.length, lastVisit };
+  });
+
+  if (clients.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <div class="title">Sin resultados</div>
+        <div class="sub">${q ? 'Intenta otra búsqueda' : 'No hay clientes en este estado'}</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = clients.map(c => {
+    const stage = STAGE_LABELS[c.stage || ''] || STAGE_LABELS[''];
+    const details = [];
+    if (c.contact) details.push(escapeHtml(c.contact));
+    if (c.place)   details.push(escapeHtml(c.place));
+    if (c.credit)  details.push('Crédito: ' + escapeHtml(c.credit));
+    return `
+      <div class="visit-card" onclick="openClientDetail('${escapeHtml(c.name).replace(/'/g,"\\'")}')">
+        <div class="top">
+          <div>
+            <div class="client">${escapeHtml(c.name)}</div>
+            <div class="meta">
+              ${details.length ? details.map(d => `<span>${d}</span>`).join('<span class="dot"></span>') : '<span>—</span>'}
+            </div>
+          </div>
+          <span class="badge ${stage.badge}">${stage.label}</span>
+        </div>
+        <div class="footer" style="border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px;">
+          <div class="next">${c.visitCount} visita${c.visitCount === 1 ? '' : 's'}${c.lastVisit ? ' · Última: ' + formatDate(c.lastVisit.date) : ' registradas'}</div>
+          ${c.phone ? `<div class="responsible" style="color: var(--text-2);">📞 ${escapeHtml(c.phone)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function setClientFilter(f, btn) {
+  state.clientFilter = f;
+  document.querySelectorAll('#clientFilter .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderClients();
+}
+
+function openClientDetail(name) {
+  const c = state.clients.find(x => x.name === name);
+  if (!c) return;
+  const visits = state.visits.filter(v => v.client === name)
+    .sort((a,b) => new Date(b.date) - new Date(a.date));
+  const stage = STAGE_LABELS[c.stage || ''] || STAGE_LABELS[''];
+
+  document.getElementById('detailContent').innerHTML = `
+    <h3>${escapeHtml(c.name)}</h3>
+    <div class="modal-meta">
+      <span class="badge ${stage.badge}">${stage.label}</span>
+      ${c.place ? `<span>·</span><span>${escapeHtml(c.place)}</span>` : ''}
+    </div>
+
+    ${c.contact ? `<div class="detail-section"><div class="lbl">Contacto</div><div class="val">${escapeHtml(c.contact)}</div></div>` : ''}
+    ${c.phone   ? `<div class="detail-section"><div class="lbl">Teléfono</div><div class="val"><a href="tel:${escapeHtml(c.phone)}" style="color: var(--green); text-decoration: none;">${escapeHtml(c.phone)}</a></div></div>` : ''}
+    ${c.email   ? `<div class="detail-section"><div class="lbl">Email</div><div class="val">${escapeHtml(c.email)}</div></div>` : ''}
+    ${c.credit  ? `<div class="detail-section"><div class="lbl">Crédito</div><div class="val">${escapeHtml(c.credit)}</div></div>` : ''}
+
+    <div class="detail-section">
+      <div class="lbl">Visitas registradas (${visits.length})</div>
+      ${visits.length === 0
+        ? '<div class="val" style="color: var(--text-3);">Aún no hay visitas a este cliente</div>'
+        : visits.map(v => {
+            const u = USERS.find(x => x.id === v.user);
+            const r = RESULT_LABELS[v.result];
+            return `
+              <div class="visit-card" style="margin-top: 8px; margin-bottom: 0;" onclick="closeDetail(); setTimeout(() => openDetail('${v.id}'), 100);">
+                <div class="top">
+                  <div>
+                    <div class="client" style="font-size: 14px;">${formatDate(v.date)} · ${u ? u.short : ''}</div>
+                    ${v.nextWhat ? `<div class="meta"><span><b>Sigue:</b> ${escapeHtml(v.nextWhat)}</span></div>` : ''}
+                  </div>
+                  <span class="badge ${r.badge}">${r.label}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+    </div>
+
+    <div class="row" style="margin-top: 24px;">
+      <button class="btn btn-ghost" onclick="closeDetail()">Cerrar</button>
+      <button class="btn btn-primary" onclick="closeDetail(); openVisitFormForClient('${escapeHtml(c.name).replace(/'/g,"\\'")}')">+ Registrar visita</button>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function openVisitFormForClient(name) {
+  openVisitForm();
+  setTimeout(() => {
+    document.getElementById('f_client').value = name;
+    const c = state.clients.find(x => x.name === name);
+    if (c && c.place) document.getElementById('f_city').value = c.place;
+  }, 100);
+}
+
+function countMyPendings() {
+  return state.visits.filter(v => v.nextWhat && v.nextWho === state.user.id && !v.nextDone).length;
+}
+
+function updatePendingBadge() {
+  const count = countMyPendings();
+  const badge = document.getElementById('pendingBadge');
+  if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; }
+  else { badge.style.display = 'none'; }
+}
+
+// ============== NAV ==============
+function switchView(view, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function setFilter(f, btn) {
+  state.currentFilter = f;
+  document.querySelectorAll('#filterBar .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderVisits();
+}
+
+function setPendingFilter(f, btn) {
+  state.currentPendingFilter = f;
+  document.querySelectorAll('#pendingFilter .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderPending();
+}
+
+function filterByClient(clientName) {
+  const visits = state.visits.filter(v => v.client === clientName);
+  if (visits.length === 0) {
+    showToast('Sin visitas registradas para esta cuenta');
+    return;
+  }
+  switchView('feed', document.querySelector('.nav-item[data-view="feed"]'));
+}
+
+// ============== FORM ==============
+function openVisitForm() {
+  document.getElementById('formScreen').classList.add('active');
+  document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+  state.formState = { oc: false, missing: false, result: null };
+
+  ['f_client','f_city','f_ocAmount','f_ocDelivery','f_ocProducts','f_missing','f_pricing','f_nextWhat','f_nextDate','f_notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_nextWho').value = '';
+  document.querySelectorAll('#resultOptions .option-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('ocToggle').classList.remove('on');
+  document.getElementById('missingToggle').classList.remove('on');
+  document.getElementById('ocFields').classList.remove('active');
+  document.getElementById('missingFields').classList.remove('active');
+}
+
+function closeVisitForm() {
+  document.getElementById('formScreen').classList.remove('active');
+  document.getElementById('clientResults').classList.remove('active');
+}
+
+document.querySelectorAll('#resultOptions .option-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#resultOptions .option-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.formState.result = btn.dataset.value;
+    if (btn.dataset.value === 'oc' && !state.formState.oc) toggle('oc');
+  });
+});
+
+function toggle(field) {
+  state.formState[field] = !state.formState[field];
+  const toggleEl = field === 'oc' ? document.getElementById('ocToggle')   : document.getElementById('missingToggle');
+  const fieldsEl = field === 'oc' ? document.getElementById('ocFields')   : document.getElementById('missingFields');
+  toggleEl.classList.toggle('on', state.formState[field]);
+  fieldsEl.classList.toggle('active', state.formState[field]);
+}
+
+function populateUserSelects() {
+  const select = document.getElementById('f_nextWho');
+  select.innerHTML = '<option value="">—</option>' + TEAM.map(u =>
+    `<option value="${u.id}">${u.name}</option>`
+  ).join('');
+}
+
+function searchClients() {
+  const input = document.getElementById('f_client');
+  const q = input.value.toLowerCase().trim();
+  const results = document.getElementById('clientResults');
+
+  let matches = state.clients.filter(c =>
+    c.name.toLowerCase().includes(q) ||
+    (c.place || '').toLowerCase().includes(q)
+  );
+  matches = matches.slice(0, 8);
+
+  let html = matches.map(c => {
+    const stage = STAGE_LABELS[c.stage || ''] || STAGE_LABELS[''];
+    const meta = [stage.label];
+    if (c.place) meta.push(c.place);
+    return `
+      <div class="client-result" onclick="pickClient('${escapeHtml(c.name).replace(/'/g,"\\'")}', '${escapeHtml(c.place || '').replace(/'/g,"\\'")}')">
+        ${escapeHtml(c.name)}
+        <div class="type">${meta.map(escapeHtml).join(' · ')}</div>
+      </div>
+    `;
+  }).join('');
+
+  if (q && !state.clients.find(c => c.name.toLowerCase() === q)) {
+    html += `
+      <div class="client-result new" onclick="addNewClient('${escapeHtml(input.value).replace(/'/g,"\\'")}')">
+        + Agregar "${escapeHtml(input.value)}" como prospecto nuevo
+      </div>
+    `;
+  }
+
+  results.innerHTML = html;
+  results.classList.toggle('active', html.length > 0);
+}
+
+function pickClient(name, place) {
+  document.getElementById('f_client').value = name;
+  if (place) document.getElementById('f_city').value = place;
+  document.getElementById('clientResults').classList.remove('active');
+}
+
+function addNewClient(name) {
+  if (!name.trim()) return;
+  const newClient = { name: name.trim(), stage: 'new', contact: '', phone: '', place: '', credit: '', email: '' };
+  state.clients.push(newClient);
+  saveData();
+  pickClient(newClient.name, '');
+  showToast('Agregado como prospecto nuevo');
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.client-input-wrap')) {
+    document.getElementById('clientResults').classList.remove('active');
+  }
+});
+
+function saveVisit() {
+  const client = document.getElementById('f_client').value.trim();
+  if (!client) { showToast('Falta el cliente'); return; }
+  if (!state.formState.result) { showToast('Selecciona el resultado'); return; }
+
+  if (!state.clients.find(c => c.name === client)) {
+    state.clients.push({
+      name: client,
+      stage: 'new',
+      contact: '', phone: '', email: '', credit: '',
+      place: document.getElementById('f_city').value.trim()
+    });
+  }
+
+  const clientStage = state.clients.find(c => c.name === client)?.stage || 'new';
+
+  const visit = {
+    id: 'v_' + Date.now(),
+    createdAt: Date.now(),
+    user: state.user.id,
+    client,
+    clientStage,
+    city:        document.getElementById('f_city').value.trim(),
+    date:        document.getElementById('f_date').value || new Date().toISOString().split('T')[0],
+    result:      state.formState.result,
+    hasOc:       state.formState.oc,
+    ocAmount:    state.formState.oc ? document.getElementById('f_ocAmount').value : '',
+    ocDelivery:  state.formState.oc ? document.getElementById('f_ocDelivery').value.trim() : '',
+    ocProducts:  state.formState.oc ? document.getElementById('f_ocProducts').value.trim() : '',
+    hasMissing:  state.formState.missing,
+    missing:     state.formState.missing ? document.getElementById('f_missing').value.trim() : '',
+    pricing:     document.getElementById('f_pricing').value.trim(),
+    nextWhat:    document.getElementById('f_nextWhat').value.trim(),
+    nextWho:     document.getElementById('f_nextWho').value,
+    nextDate:    document.getElementById('f_nextDate').value,
+    nextDone:    false,
+    notes:       document.getElementById('f_notes').value.trim()
+  };
+
+  state.visits.push(visit);
+  saveData();
+  closeVisitForm();
+  render();
+  showToast('Visita guardada ✓');
+}
+
+// ============== DETAIL ==============
+function openDetail(id) {
+  const v = state.visits.find(x => x.id === id);
+  if (!v) return;
+  const user   = USERS.find(u => u.id === v.user);
+  const result = RESULT_LABELS[v.result];
+  const toUser = v.nextWho ? findTeam(v.nextWho) : null;
+  const canEdit = v.user === state.user.id;
+
+  document.getElementById('detailContent').innerHTML = `
+    <h3>${escapeHtml(v.client)}</h3>
+    <div class="modal-meta">
+      <span class="badge ${result.badge}">${result.label}</span>
+      <span>${formatDate(v.date)}</span>
+      <span>·</span>
+      <span>${user ? user.name : ''}</span>
+      ${v.city ? `<span>·</span><span>${escapeHtml(v.city)}</span>` : ''}
+    </div>
+
+    ${v.hasOc ? `
+      <div class="detail-section">
+        <div class="lbl">Orden de compra</div>
+        <div class="val"><b>$${Number(v.ocAmount).toLocaleString('en-US')} USD</b>${v.ocDelivery ? ' · Entrega ' + escapeHtml(v.ocDelivery) : ''}</div>
+        ${v.ocProducts ? `<div class="val" style="margin-top:6px;">${escapeHtml(v.ocProducts)}</div>` : ''}
+      </div>
+    ` : ''}
+
+    ${v.missing ? `
+      <div class="detail-section">
+        <div class="lbl">Producto solicitado que no tenemos</div>
+        <div class="val">${escapeHtml(v.missing)}</div>
+      </div>
+    ` : ''}
+
+    ${v.pricing ? `
+      <div class="detail-section">
+        <div class="lbl">Feedback de precios</div>
+        <div class="val">${escapeHtml(v.pricing)}</div>
+      </div>
+    ` : ''}
+
+    ${v.notes ? `
+      <div class="detail-section">
+        <div class="lbl">Notas</div>
+        <div class="val">${escapeHtml(v.notes)}</div>
+      </div>
+    ` : ''}
+
+    ${v.nextWhat ? `
+      <div class="detail-section">
+        <div class="lbl">Próximo paso</div>
+        <div class="next-block">
+          <div class="what">${escapeHtml(v.nextWhat)}</div>
+          <div class="who">→ ${toUser ? toUser.name : 'Sin asignar'}${v.nextDate ? ' · ' + formatDate(v.nextDate) : ''}${v.nextDone ? ' · ✓ Hecho' : ''}</div>
+        </div>
+      </div>
+    ` : ''}
+
+    <div class="row" style="margin-top: 24px;">
+      <button class="btn btn-ghost" onclick="closeDetail()">Cerrar</button>
+      ${canEdit ? `<button class="btn btn-danger" onclick="deleteVisit('${v.id}')">Eliminar</button>` : ''}
+    </div>
+    ${!canEdit ? `<div class="text-mini" style="text-align:center;margin-top:12px;">Solo ${user ? user.short : 'quien la creó'} puede editar esta visita</div>` : ''}
+  `;
+  document.getElementById('detailModal').classList.add('active');
+}
+
+function closeDetail() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+
+function deleteVisit(id) {
+  const v = state.visits.find(x => x.id === id);
+  if (!v) return;
+  if (v.user !== state.user.id) { showToast('Solo quien la creó puede eliminarla'); return; }
+  if (!confirm('¿Eliminar esta visita? No se puede deshacer.')) return;
+  state.visits = state.visits.filter(v => v.id !== id);
+  saveData();
+  closeDetail();
+  render();
+  showToast('Visita eliminada');
+}
+
+function togglePending(id) {
+  const v = state.visits.find(x => x.id === id);
+  if (!v) return;
+  if (v.nextWho !== state.user.id && v.user !== state.user.id) {
+    showToast('Solo el responsable puede marcarla'); return;
+  }
+  v.nextDone = !v.nextDone;
+  saveData();
+  render();
+  showToast(v.nextDone ? 'Marcado como hecho ✓' : 'Reabierto');
+}
+
+// ============== IMPORT / EXPORT ==============
+function importClients() {
+  const text = prompt('Pega los nombres de clientes (uno por línea):');
+  if (!text) return;
+  const newClients = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0;
+  newClients.forEach(name => {
+    if (!state.clients.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+      state.clients.push({ name, stage: 'new', contact: '', phone: '', place: '', credit: '', email: '' });
+      added++;
+    }
+  });
+  saveData();
+  renderClients();
+  showToast(`${added} cuenta${added === 1 ? '' : 's'} agregada${added === 1 ? '' : 's'}`);
+}
+
+function exportData() {
+  const data = {
+    exportedAt: new Date().toISOString(),
+    visits:  state.visits,
+    clients: state.clients
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `formexa-visitas-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============== HELPERS ==============
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatDate(d) {
+  if (!d) return '';
+  const date  = new Date(d + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diff = Math.round((today - date) / (1000*60*60*24));
+  if (diff === 0) return 'Hoy';
+  if (diff === 1) return 'Ayer';
+  if (diff > 1 && diff < 7) return `hace ${diff}d`;
+  return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============== INIT ==============
+loadData();
+renderLogin();
+const savedUser = localStorage.getItem('fx_user');
+if (savedUser && USERS.find(u => u.id === savedUser)) login(savedUser);
+</script>
+</body>
+</html>
