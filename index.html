@@ -892,10 +892,31 @@
         <div class="wordmark">FORMEXA<span class="sub">Bitácora Comercial</span></div>
       </div>
     </div>
-    <h1>Reportes de visita</h1>
-    <div class="sub">Registra cada cita en menos de 2 minutos</div>
-    <label>Identifícate</label>
-    <div class="user-list" id="userList"></div>
+
+    <!-- Paso 1: seleccionar usuario -->
+    <div id="loginStep1">
+      <h1>Reportes de visita</h1>
+      <div class="sub">Registra cada cita en menos de 2 minutos</div>
+      <label>Identifícate</label>
+      <div class="user-list" id="userList"></div>
+    </div>
+
+    <!-- Paso 2: contraseña -->
+    <div id="loginStep2" style="display:none;">
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px;">
+        <div class="avatar" id="pwAvatar" style="width:52px;height:52px;border-radius:50%;background:var(--green);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;">A</div>
+        <div>
+          <div style="font-weight:700;font-size:18px;letter-spacing:-0.02em;" id="pwName">—</div>
+          <button onclick="loginBack()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;padding:0;margin-top:2px;">← Cambiar usuario</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="pwInput" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter') loginSubmit()" autocomplete="current-password">
+      </div>
+      <div id="pwError" style="color:var(--red);font-size:13px;margin-top:-10px;margin-bottom:14px;display:none;font-weight:500;">Contraseña incorrecta</div>
+      <button class="btn btn-primary" style="width:100%;" onclick="loginSubmit()">Entrar</button>
+    </div>
   </div>
 </div>
 
@@ -918,7 +939,7 @@
     <h2>Historial de visitas</h2>
     <div class="view-sub">Todo lo registrado en ruta</div>
 
-    <button class="btn-register-big" onclick="openVisitForm()">
+    <button class="btn-register-big" id="btnRegisterBig" onclick="openVisitForm()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
       Registrar nueva visita
     </button>
@@ -938,6 +959,19 @@
     <div class="filter-bar" id="pendingFilter"></div>
 
     <div id="pendingList"></div>
+  </div>
+
+  <!-- VIEW: NOTAS (solo dirección) -->
+  <div class="view" id="view-notes" style="display:none;">
+    <h2>Notas internas</h2>
+    <div class="view-sub">Solo Florencia y Adrián. Alejandro no las ve.</div>
+
+    <div class="filter-bar" id="notesFilter">
+      <button class="chip active" onclick="setNotesTab('notes', this)">Pendientes propios</button>
+      <button class="chip" onclick="setNotesTab('missing', this)">Productos solicitados</button>
+    </div>
+
+    <div id="notesContent"></div>
   </div>
 
   <!-- VIEW: CUENTAS -->
@@ -965,28 +999,7 @@
   </div>
 
   <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-view="feed" onclick="switchView('feed', this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-      Visitas
-    </button>
-    <button class="nav-item" data-view="pending" onclick="switchView('pending', this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-      Pendientes
-      <span id="pendingBadge" style="display:none;position:absolute;top:6px;right:14px;background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 5px;border-radius:100px;min-width:16px;text-align:center;">0</span>
-    </button>
-    <div class="nav-fab">
-      <button onclick="openVisitForm()" aria-label="Registrar visita">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
-      </button>
-      <div class="fab-label">Registrar</div>
-    </div>
-    <button class="nav-item" data-view="clients" onclick="switchView('clients', this)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 11a4 4 0 11-8 0 4 4 0 018 0zM12 14c-3.5 0-7 1.5-7 5v1h14v-1c0-3.5-3.5-5-7-5z"/></svg>
-      Clientes
-    </button>
-    <button class="nav-item" style="visibility:hidden">_</button>
-  </nav>
+  <nav class="bottom-nav" id="bottomNav"></nav>
 </div>
 
 <!-- USER MENU -->
@@ -1079,8 +1092,13 @@
         </div>
       </div>
       <div class="field" style="margin-top: 12px;">
-        <label>Productos clave</label>
-        <textarea id="f_ocProducts" placeholder="Ej: 200 cajas Suavitel, 50 cajas P&G..."></textarea>
+        <label>Productos en la OC</label>
+        <div id="ocProductsSelected" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+        <div class="client-input-wrap">
+          <input type="text" id="f_productSearch" placeholder="Busca por nombre, SKU o marca..." oninput="searchProducts()" onfocus="searchProducts()" autocomplete="off">
+          <div class="client-results" id="productResults"></div>
+        </div>
+        <div class="text-mini" style="margin-top:6px;">Selecciona del catálogo y pon cuántas cajas.</div>
       </div>
     </div>
 
@@ -1142,10 +1160,19 @@
 <script>
 // ============== USUARIOS (login) ==============
 const USERS = [
-  { id: 'aaguirre',  name: 'Alejandro Aguirre',  short: 'Alejandro', role: 'Director Comercial EE.UU.' },
-  { id: 'florencia', name: 'Florencia Hinojosa', short: 'Florencia', role: 'Directora General Operativa' },
-  { id: 'adrian',    name: 'Adrián Sheridan',    short: 'Adrián',    role: 'Socio Estratégico' }
+  { id: 'aaguirre',  name: 'Alejandro Aguirre',  short: 'Alejandro', role: 'comercial' },
+  { id: 'florencia', name: 'Florencia Hinojosa', short: 'Florencia', role: 'direccion' },
+  { id: 'adrian',    name: 'Adrián Sheridan',    short: 'Adrián',    role: 'direccion' }
 ];
+
+const PASSWORDS = {
+  aaguirre:  'aguirre2026',
+  florencia: 'florencia2026',
+  adrian:    'adrian2026'
+};
+
+function isComercial() { return state.user && state.user.role === 'comercial'; }
+function isDireccion() { return state.user && state.user.role === 'direccion'; }
 
 // ============== EQUIPO (para responsable de próximos pasos) ==============
 const TEAM = [
@@ -1227,6 +1254,9 @@ const SAMPLE_CLIENTS = [
   { name: 'Central Food Distributors',   stage: 'new',         contact: '', phone: '', place: '', credit: '', email: '' }
 ];
 
+// ============== CATÁLOGO DE PRODUCTOS (oculto, solo se usa en buscador de OC) ==============
+const PRODUCTS = [{"sku":"DET0002","name":"ACE UNO P TODO LIQ 2.8L C/4 PZS","brand":"ACE","category":"Detergentes y limpieza"},{"sku":"DET0045","name":"ACE UNO P TODO LIQ 8.5L C/1 PZ","brand":"ACE","category":"Detergentes y limpieza"},{"sku":"DET0003","name":"ACE UNO P TODO LIQ 800 ML C/9 PZS","brand":"ACE","category":"Detergentes y limpieza"},{"sku":"DET0044","name":"ARIEL LIMPIEZA PROFUNDA LIQ 2.8L C/4 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0046","name":"ARIEL LIMPIEZA PROFUNDA LIQ 4.8L C/2 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0004","name":"ARIEL PARAISO FLORAL 1.5 KG C/12 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0005","name":"ARIEL PARAISO FLORAL 750 GR C/12 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"ALTA EN PROCESO","name":"ARIEL PARAISO FLORAL 800 GR C/10 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0008","name":"ARIEL REGULAR PWD 250 GR C/36 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0014","name":"ARIEL REGULAR PWD 4 KG C/4 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0009","name":"ARIEL REGULAR PWD 5 KG C/4 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0010","name":"ARIEL REGULAR PWD 500 GR C/18 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0011","name":"ARIEL REGULAR PWD 850 GR C/10 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0021","name":"ARIEL REGULAR PWD 850 GR C/11 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0006","name":"ARIEL REVITA LIQ 2.8L C/4 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0012","name":"ARIEL REVITA LIQ 4.8L C/2 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0050","name":"ARIEL REVITA LIQ 8.5L C/2 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0007","name":"ARIEL REVITA LIQ 800 ML C/9 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0051","name":"ARIEL REVITA PWD 4 KG C/4 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0052","name":"ARIEL REVITA PWD 850 GR C/10 PZS","brand":"ARIEL","category":"Detergentes y limpieza"},{"sku":"DET0040","name":"BLANCA NIEVES POLVO 1 KG C/18 PZS","brand":"BLANCA NIEVES","category":"Detergentes y limpieza"},{"sku":"DET0039","name":"BLANCA NIEVES POLVO 2 KG C/10 PZS","brand":"BLANCA NIEVES","category":"Detergentes y limpieza"},{"sku":"DET0041","name":"BLANCA NIEVES POLVO 250 g C/72 PZS","brand":"BLANCA NIEVES","category":"Detergentes y limpieza"},{"sku":"DET0022","name":"BLANCA NIEVES POLVO 500 g C/36 PZS","brand":"BLANCA NIEVES","category":"Detergentes y limpieza"},{"sku":"SUA0029","name":"CARISMA 1 L C/12 PZS","brand":"CARISMA","category":"Detergentes y limpieza"},{"sku":"SUA0030","name":"CARISMA SANDALWOOD 1 L C/12 PZS","brand":"CARISMA","category":"Detergentes y limpieza"},{"sku":"SUA0001","name":"DOWNY AMANECER 2.8L C/6 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0002","name":"DOWNY AMANECER 730 ML C/9 PZS S","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0003","name":"DOWNY ELEGANCE 2.6 LT C/6 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0004","name":"DOWNY ELEGANCE 750 ML C/9 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0034","name":"DOWNY EXOTICO 1.4 LT C/9 PZS S","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0035","name":"DOWNY EXOTICO 730 ML C/9 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0005","name":"DOWNY FLORAL 2.8 LT C/6 PZS S","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0006","name":"DOWNY FLORAL 360 ML C/12 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0007","name":"DOWNY FLORAL 730 ML C/9 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0008","name":"DOWNY PASSION 2.6 LT C/6 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0009","name":"DOWNY PASSION 750 ML C/9 PZS S","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0010","name":"DOWNY PUREZA SILVESTRE 2.8 LT C/6 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0033","name":"DOWNY PUREZA SILVESTRE 730 ML C/9 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0011","name":"DOWNY ROMANCE 2.6 LT C/6 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0012","name":"DOWNY ROMANCE 750 ML C/9 PZS","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"SUA0013","name":"DOWNY SUAVE Y GENTIL 2800ML C/6PZ","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"ALTA EN PROCESO","name":"DOWNY SUAVE Y GENTIL 730 ML C/9PZ","brand":"DOWNY","category":"Detergentes y limpieza"},{"sku":"DET0024","name":"FOCA LIQUIDO 1 L C/12 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0042","name":"FOCA LIQUIDO 3.785 L C/4 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0023","name":"FOCA LIQUIDO 473 mL C/12 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0035","name":"FOCA POLVO 1 kg C/18 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0034","name":"FOCA POLVO 2 kg C/10 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0037","name":"FOCA POLVO 250 g C/72 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0025","name":"FOCA POLVO 5 kg C/4 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"DET0036","name":"FOCA POLVO 500 g C/36 PZS","brand":"FOCA","category":"Detergentes y limpieza"},{"sku":"JLT0001","name":"JAB LIQ AXION LIMON 1.4L C/6 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0019","name":"JAB LIQ AXION LIMON 2.8L C/4 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0002","name":"JAB LIQ AXION LIMON 400 ML C/15","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0013","name":"JAB LIQ AXION LIMON 400ML C/12 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0003","name":"JAB LIQ AXION LIMON 640ML C/12 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0004","name":"JAB LIQ AXION LIMON 900ML C/12 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0005","name":"JAB LIQ SALVO LIMON 1.2L C/12 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0008","name":"JAB LIQ SALVO LIMON 1.4L C/9 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0009","name":"JAB LIQ SALVO LIMON 300 ML C/12 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0015","name":"JAB LIQ SALVO LIMON 300 ML C/14 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0006","name":"JAB LIQ SALVO LIMON 500ML C/10 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"DET0033","name":"JAB LIQ SALVO LIMON 640 ML C/12","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0010","name":"JAB LIQ SALVO LIMON 750ML C/12 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0007","name":"JAB LIQ SALVO LIMON 900 ML C/12 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0011","name":"JAB LIQ SALVO PWR CLEAN 1.2L C/12 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0012","name":"JAB LIQ SALVO PWR CLEAN 2.6L C/6 PZS","brand":"SALVO","category":"Detergentes y limpieza"},{"sku":"JLT0014","name":"JAB POLVO AXION LIMON 500 G C/24 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0016","name":"JAB POLVO AXION LIMON 720G C/18 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JLT0017","name":"JAB POLVO AXION LIMON 900G C/14 PZS","brand":"AXION","category":"Detergentes y limpieza"},{"sku":"JAB0001","name":"JAB ZOTE BLANCO 400 g C/25 PZS","brand":"ZOTE","category":"Detergentes y limpieza"},{"sku":"JAB0002","name":"JAB ZOTE LIQ PINK 1 L C/12 PZS","brand":"ZOTE","category":"Detergentes y limpieza"},{"sku":"JAB0003","name":"JAB ZOTE LIQ WHITE 1 L C/12 PZS","brand":"ZOTE","category":"Detergentes y limpieza"},{"sku":"JAB0005","name":"JAB ZOTE ROSA 200 g C/50 PZS","brand":"ZOTE","category":"Detergentes y limpieza"},{"sku":"JAB0004","name":"JAB ZOTE ROSA 400 g C/25 PZS","brand":"ZOTE","category":"Detergentes y limpieza"},{"sku":"DET0015","name":"LIQ PERSIL CLR 3 LT C/6 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0016","name":"LIQ PERSIL CLR 4.65 LT C/4 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0017","name":"LIQ PERSIL CLR 6.64 LT C/3 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0018","name":"LIQ PERSIL REGULAR 3 LT C/6 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0019","name":"LIQ PERSIL REGULAR 4.65 LT C/4 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0020","name":"LIQ PERSIL REGULAR 6.64 LT C/3 PZS","brand":"PERSIL","category":"Detergentes y limpieza"},{"sku":"DET0028","name":"ROMA LIQUIDO 1 G C/4 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0026","name":"ROMA LIQUIDO 1 L C/12 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0043","name":"ROMA LIQUIDO 473 mL C/12 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0027","name":"ROMA POLVO 1 kg C/18 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0031","name":"ROMA POLVO 1 kg C/18 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0029","name":"ROMA POLVO 250 g C/72 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0032","name":"ROMA POLVO 2kg C/10 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0030","name":"ROMA POLVO 5 kg C/4 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"DET0038","name":"ROMA POLVO 500 g C/20 PZS","brand":"ROMA","category":"Detergentes y limpieza"},{"sku":"ACC0002","name":"SAVILE AC ALM VIT Y SAB 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"ACC0001","name":"SAVILE AC COLAG Y SAB 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0001","name":"SAVILE SH ACEI DE ARG 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0002","name":"SAVILE SH ACEI DE COCO 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0003","name":"SAVILE SH AGUACATE 2EN1 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0004","name":"SAVILE SH ALMENDRA 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0005","name":"SAVILE SH BIOTINA 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0006","name":"SAVILE SH CELULAS MADRE 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0007","name":"SAVILE SH CHILE 2EN1 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0008","name":"SAVILE SH COLAGENO 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0009","name":"SAVILE SH LISO DESLU KERA 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0010","name":"SAVILE SH MIEL 2EN1 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"SHA0011","name":"SAVILE SH NOPAL 2EN1 700ML C/12 PZS","brand":"SAVILE","category":"Detergentes y limpieza"},{"sku":"CRP0001","name":"SEDAL CREMA P ANTINUDOS 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"CRP0002","name":"SEDAL CREMA P LISO PERF 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"CRP0003","name":"SEDAL CREMA P REST INST 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"CRP0004","name":"SEDAL CREMA P RIZOS DEF 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"SHA0012","name":"SEDAL SH CERAMIDAS 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"SHA0013","name":"SEDAL SH LISO PERFECTO 300ML C/12 PZS","brand":"SEDAL","category":"Detergentes y limpieza"},{"sku":"SUA0017","name":"SUAVITEL BABY ANTIBAC 850 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0016","name":"SUAVITEL COMPLETE ACQUA 2.8 LT C/4 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0015","name":"SUAVITEL COMPLETE ANOCHECER 700 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0018","name":"SUAVITEL COMPLETE PRIMAVERA 700 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0028","name":"SUAVITEL COMPLETE SOL 700 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0014","name":"SUAVITEL CUI SUP ANOCHECER 850 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0020","name":"SUAVITEL CUI SUP MANZANA 740 ML C/16 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0025","name":"SUAVITEL CUI SUP SOL 3 LT C/4 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0026","name":"SUAVITEL CUI SUP SOL 450 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0027","name":"SUAVITEL CUI SUP SOL 850 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0019","name":"SUAVITEL CUIDADO DIARIO 8.5 LT C/1 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"ALTA EN PROCESO","name":"SUAVITEL CUIDADO DIARIO ACQUA 900 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0021","name":"SUAVITEL FRESCA PRIM 2.8 LT C/4 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0022","name":"SUAVITEL FRESCA PRIM 3 LT C/4 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0023","name":"SUAVITEL FRESCA PRIM 450 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"SUA0024","name":"SUAVITEL FRESCA PRIM 850 ML C/12 PZS","brand":"SUAVITEL","category":"Detergentes y limpieza"},{"sku":"BEB0089","name":"AMPER ED BLUEBERRY 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0090","name":"AMPER ED KALAKA PUNCH 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0091","name":"AMPER ED PLAY HARD 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0093","name":"AMPER ED PREDATOR 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0092","name":"AMPER ED SPEED 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0004","name":"BE LIGHT FRESA MORA 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0001","name":"BE LIGHT JAMAICA 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0002","name":"BE LIGHT LIMON 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0003","name":"BE LIGHT MANGO 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0005","name":"BE LIGHT PEPINO LIMON 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0006","name":"BE LIGHT PIÑA MARACUYA 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0007","name":"BE LIGHT TORONJA 6/1.5L","brand":"","category":"Bebidas"},{"sku":"BEB0066","name":"CLAMATO CUBANO 12/473 ML./16 OZ.","brand":"","category":"Bebidas"},{"sku":"BEB0067","name":"CLAMATO CUBANO 12/946 ML/32 OZ.","brand":"","category":"Bebidas"},{"sku":"BEB0063","name":"CLAMATO ORIGINAL 12/473 ML./16 OZ.","brand":"","category":"Bebidas"},{"sku":"BEB0064","name":"CLAMATO ORIGINAL 12/946 ML/32 OZ.","brand":"","category":"Bebidas"},{"sku":"BEB0065","name":"CLAMATO ORIGINAL 8/1.89L/64 OZ.","brand":"","category":"Bebidas"},{"sku":"BEB0068","name":"CLAMATO VALV 12/473 ML/16 OZ","brand":"","category":"Bebidas"},{"sku":"BEB0069","name":"CLAMATO VALV 12/946 ML/32 OZ","brand":"","category":"Bebidas"},{"sku":"BEB0077","name":"JUGO BOING  DURAZNO 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0072","name":"JUGO BOING  FRESA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0071","name":"JUGO BOING  GUAYABA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0070","name":"JUGO BOING  MANGO 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0076","name":"JUGO BOING  MANZANA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0074","name":"JUGO BOING  NARANAJA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0073","name":"JUGO BOING  PIÑA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0075","name":"JUGO BOING  UVA 1 LT C/12 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0082","name":"JUGO BOING LATA DURAZNO 340ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0080","name":"JUGO BOING LATA FRESA 340ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0079","name":"JUGO BOING LATA GUAYANA 340ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0078","name":"JUGO BOING LATA MANGO 340ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0081","name":"JUGO BOING LATA UVA 340ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0088","name":"JUGO BOING TETRA BRICK DURAZNO 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0085","name":"JUGO BOING TETRA BRICK FRESA 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0084","name":"JUGO BOING TETRA BRICK GUAYABA 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0083","name":"JUGO BOING TETRA BRICK MANGO 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0087","name":"JUGO BOING TETRA BRICK MANZANA 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0086","name":"JUGO BOING TETRA BRICK UVA 200ML","brand":"","category":"Bebidas"},{"sku":"BEB0097","name":"JUGO BOING TETRA DURAZNO 500ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0094","name":"JUGO BOING TETRA FRESA 500ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0096","name":"JUGO BOING TETRA MANZANA 500ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0095","name":"JUGO BOING TETRA UVA 500ML C/24 PZAS","brand":"","category":"Bebidas"},{"sku":"BEB0008","name":"JUMEX BRIK COCO PIÑA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0009","name":"JUMEX BRIK DURAZNO 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0010","name":"JUMEX BRIK GUAYABA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0012","name":"JUMEX BRIK MANGO 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0011","name":"JUMEX BRIK MANZANA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0013","name":"JUMEX BRIK NARANJA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0014","name":"JUMEX BRIK PIÑA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0015","name":"JUMEX BRIK UVA 12/1L","brand":"","category":"Bebidas"},{"sku":"BEB0016","name":"JUMEX GLASS DURAZNO 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0017","name":"JUMEX GLASS GUAYABA 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0020","name":"JUMEX GLASS MANGO 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0018","name":"JUMEX GLASS MANZANA 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0019","name":"JUMEX GLASS MANZANA CLARIFICADA 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0021","name":"JUMEX GLASS UVA 12/413ML","brand":"","category":"Bebidas"},{"sku":"BEB0022","name":"PAU PAU MIX MANZANA-UVA-CEREZA24/250 ML","brand":"","category":"Bebidas"},{"sku":"BEB0023","name":"REFRESCO COCA COLA MINI VIDRIO 24/236ML","brand":"","category":"Bebidas"},{"sku":"BEB0024","name":"REFRESCO COCA COLA PET 6/3 LTS","brand":"","category":"Bebidas"},{"sku":"BEB0025","name":"REFRESCO FANTA NARANJA 6/3L","brand":"","category":"Bebidas"},{"sku":"BEB0026","name":"REFRESCO FRESCA 6/3L","brand":"","category":"Bebidas"},{"sku":"BEB0027","name":"REFRESCO FRESCA 8/2.5L","brand":"","category":"Bebidas"},{"sku":"BEB0028","name":"REFRESCO JOYA MANZANA 8/2.5 LTS","brand":"","category":"Bebidas"},{"sku":"BEB0029","name":"REFRESCO MANZANITA SOL 8/2.5 LTS","brand":"","category":"Bebidas"},{"sku":"BEB0030","name":"REFRESCO MANZANITA SOL PET 8/3 LTS.","brand":"","category":"Bebidas"},{"sku":"BEB0031","name":"REFRESCO MIRINDA PET 8/2.5L","brand":"","category":"Bebidas"},{"sku":"BEB0032","name":"REFRESCO MIRINDA PET 8/3 LTS.","brand":"","category":"Bebidas"},{"sku":"BEB0038","name":"REFRESCO PENAFIEL FRESA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0035","name":"REFRESCO PENAFIEL LIMONADA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0043","name":"REFRESCO PENAFIEL LIMONADA 8/2L","brand":"","category":"Bebidas"},{"sku":"BEB0040","name":"REFRESCO PENAFIEL MANGO 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0047","name":"REFRESCO PENAFIEL MANGO 8/2L","brand":"","category":"Bebidas"},{"sku":"BEB0033","name":"REFRESCO PENAFIEL MANZANITA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0042","name":"REFRESCO PENAFIEL MANZANITA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0036","name":"REFRESCO PENAFIEL NARANAJADA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0044","name":"REFRESCO PENAFIEL NARANJADA 8/2L","brand":"","category":"Bebidas"},{"sku":"BEB0037","name":"REFRESCO PENAFIEL PIÑA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0045","name":"REFRESCO PENAFIEL PIÑA 8/2L","brand":"","category":"Bebidas"},{"sku":"BEB0034","name":"REFRESCO PENAFIEL SANGRIA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0046","name":"REFRESCO PENAFIEL TORONJA 8/2L","brand":"","category":"Bebidas"},{"sku":"BEB0039","name":"REFRESCO PENAFIEL TORONOJA 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0041","name":"REFRESCO PENAFIEL TWIST LIMON 12/600ML","brand":"","category":"Bebidas"},{"sku":"BEB0048","name":"REFRESCO PEPSI COLA PET 8/3 LTS","brand":"","category":"Bebidas"},{"sku":"BEB0049","name":"REFRESCO SPRITE 6/3L","brand":"","category":"Bebidas"},{"sku":"BEB0050","name":"REFRESCO SQUIRT 8/2 LTS","brand":"","category":"Bebidas"},{"sku":"BEB0051","name":"REFRESCO SQUIRT 8/2.5L","brand":"","category":"Bebidas"},{"sku":"BEB0052","name":"REFRESCO SQUIRT PET 6/3L","brand":"","category":"Bebidas"},{"sku":"BEB0053","name":"REFRESCO SQUIRT PET 8/3 LTS.","brand":"","category":"Bebidas"},{"sku":"BEB0055","name":"VIVE100 AZAI FUZION 24/500ML","brand":"","category":"Bebidas"},{"sku":"BEB0056","name":"VIVE100 BLUEBERRY 24/500ML","brand":"","category":"Bebidas"},{"sku":"BEB0054","name":"VIVE100 ORIGINAL 24/500ML","brand":"","category":"Bebidas"},{"sku":"BEB0057","name":"VIVE100 ULTRA 24/500ML","brand":"","category":"Bebidas"},{"sku":"BEB0058","name":"VOLT BLUE ENERGY 15/473ML","brand":"","category":"Bebidas"},{"sku":"BEB0059","name":"VOLT DARK ENERGY 15/473ML","brand":"","category":"Bebidas"},{"sku":"BEB0060","name":"VOLT FOCUS RED 473ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0061","name":"VOLT GAMER 473 ML C/12","brand":"","category":"Bebidas"},{"sku":"BEB0062","name":"VOLT YELLOW ENERGY 15/473ML","brand":"","category":"Bebidas"},{"sku":"DUL0001","name":"CHOCOLATE ABUELITA 24/6/90 G","brand":"","category":"Alimentos"},{"sku":"LAT001","name":"LECHE CARNATION LATA 48/360 G","brand":"","category":"Alimentos"},{"sku":"LAT002","name":"LECHE LA LECHERA LATA 48/375 G","brand":"","category":"Alimentos"},{"sku":"CID005","name":"MAIZENA CAJETA 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID001","name":"MAIZENA CHOCOLATE 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID002","name":"MAIZENA COCO 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID003","name":"MAIZENA FRESA 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID006","name":"MAIZENA NUEZ 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID007","name":"MAIZENA SIN SABOR 6/24/45G","brand":"","category":"Alimentos"},{"sku":"CID004","name":"MAIZENA VAINILLA 6/24/45G","brand":"","category":"Alimentos"},{"sku":"SAD002","name":"MAYONESA MCCORMICK LIMON  12/390 G.","brand":"","category":"Alimentos"},{"sku":"SAD003","name":"MAYONESA MCCORMICK LIMON  12/725G","brand":"","category":"Alimentos"},{"sku":"SAD001","name":"MAYONESA MCCORMICK LIMON  24/190 G.","brand":"","category":"Alimentos"},{"sku":"SAD004","name":"MAYONESA MCCORMICK LIMON 4/3.4KG","brand":"","category":"Alimentos"},{"sku":"LAT003","name":"MEDIA CREMA NESTLE 24/225 G","brand":"","category":"Alimentos"},{"sku":"SAD009","name":"VALENTINA NEGRA 12/1 LT","brand":"","category":"Alimentos"},{"sku":"SAD008","name":"VALENTINA NEGRA 24/370 ML","brand":"","category":"Alimentos"},{"sku":"SAD006","name":"VALENTINA ROJA 12/1L.","brand":"","category":"Alimentos"},{"sku":"SAD005","name":"VALENTINA ROJA 24/370ML","brand":"","category":"Alimentos"},{"sku":"SAD007","name":"VALENTINA ROJA 3/1.1 GAL","brand":"","category":"Alimentos"}];
+
 const STAGE_LABELS = {
   won:         { label: 'Activo',      badge: 'badge-oc'  },
   negotiation: { label: 'Negociación', badge: 'badge-cot' },
@@ -1248,10 +1278,12 @@ let state = {
   user: null,
   visits: [],
   clients: [],
+  notes: [],
   currentFilter: 'all',
   currentPendingFilter: 'mine',
   clientFilter: 'all',
-  formState: { oc: false, missing: false, result: null }
+  notesTab: 'notes',
+  formState: { oc: false, missing: false, result: null, ocProducts: [] }
 };
 
 const DB_VERSION = 2;
@@ -1260,6 +1292,7 @@ const DB_VERSION = 2;
 function loadData() {
   try {
     state.visits = JSON.parse(localStorage.getItem('fx_visits') || '[]');
+    state.notes  = JSON.parse(localStorage.getItem('fx_notes') || '[]');
     const savedVersion = parseInt(localStorage.getItem('fx_db_version') || '0');
     if (savedVersion < DB_VERSION) {
       state.clients = [...SAMPLE_CLIENTS];
@@ -1270,12 +1303,14 @@ function loadData() {
     }
   } catch(e) {
     state.visits = [];
+    state.notes = [];
     state.clients = [...SAMPLE_CLIENTS];
   }
 }
 function saveData() {
   localStorage.setItem('fx_visits',  JSON.stringify(state.visits));
   localStorage.setItem('fx_clients', JSON.stringify(state.clients));
+  localStorage.setItem('fx_notes',   JSON.stringify(state.notes));
 }
 
 function initials(name) {
@@ -1283,14 +1318,45 @@ function initials(name) {
 }
 
 // ============== LOGIN ==============
+let pendingUserId = null;
+
 function renderLogin() {
   const list = document.getElementById('userList');
   list.innerHTML = USERS.map(u => `
-    <button class="user-pick" onclick="login('${u.id}')">
+    <button class="user-pick" onclick="selectUser('${u.id}')">
       <span class="avatar">${initials(u.name)}</span>
       <span>${u.name}</span>
     </button>
   `).join('');
+}
+
+function selectUser(userId) {
+  const u = USERS.find(x => x.id === userId);
+  if (!u) return;
+  pendingUserId = userId;
+  document.getElementById('loginStep1').style.display = 'none';
+  document.getElementById('loginStep2').style.display = 'block';
+  document.getElementById('pwName').textContent = u.name;
+  document.getElementById('pwAvatar').textContent = initials(u.name);
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwError').style.display = 'none';
+  setTimeout(() => document.getElementById('pwInput').focus(), 100);
+}
+
+function loginBack() {
+  pendingUserId = null;
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('loginStep2').style.display = 'none';
+}
+
+function loginSubmit() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === PASSWORDS[pendingUserId]) {
+    login(pendingUserId);
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+  }
 }
 
 function login(userId) {
@@ -1304,6 +1370,7 @@ function login(userId) {
   document.getElementById('headerAvatar').textContent = initials(user.name);
   document.getElementById('menuName').textContent     = user.name;
   document.getElementById('menuAvatar').textContent   = initials(user.name);
+  setupNavForRole();
   setupFilters();
   populateUserSelects();
   render();
@@ -1319,6 +1386,66 @@ function logout() {
   document.getElementById('app').classList.remove('active');
   document.getElementById('login').style.display = 'flex';
   switchView('feed', document.querySelector('.nav-item[data-view="feed"]'));
+}
+
+// ============== NAV SEGÚN ROL ==============
+function setupNavForRole() {
+  const nav = document.getElementById('bottomNav');
+  const isComm = isComercial();
+
+  // Botón Registrar visible solo para comercial
+  document.getElementById('btnRegisterBig').style.display = isComm ? 'flex' : 'none';
+
+  // Vista pending vs notes
+  document.getElementById('view-pending').style.display = isComm ? '' : 'none';
+  document.getElementById('view-notes').style.display = isComm ? 'none' : '';
+
+  const items = [];
+  items.push(`
+    <button class="nav-item active" data-view="feed" onclick="switchView('feed', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      Visitas
+    </button>
+  `);
+
+  if (isComm) {
+    items.push(`
+      <button class="nav-item" data-view="pending" onclick="switchView('pending', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        Pendientes
+        <span id="pendingBadge" style="display:none;position:absolute;top:6px;right:14px;background:var(--red);color:white;font-size:10px;font-weight:700;padding:1px 5px;border-radius:100px;min-width:16px;text-align:center;">0</span>
+      </button>
+    `);
+    items.push(`
+      <div class="nav-fab">
+        <button onclick="openVisitForm()" aria-label="Registrar visita">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="fab-label">Registrar</div>
+      </div>
+    `);
+  } else {
+    items.push(`
+      <button class="nav-item" data-view="notes" onclick="switchView('notes', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 12h6M9 16h4M5 6h14a1 1 0 011 1v14l-3-2-3 2-3-2-3 2-3-2-3 2V7a1 1 0 011-1z"/></svg>
+        Notas
+      </button>
+    `);
+  }
+
+  items.push(`
+    <button class="nav-item" data-view="clients" onclick="switchView('clients', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 11a4 4 0 11-8 0 4 4 0 018 0zM12 14c-3.5 0-7 1.5-7 5v1h14v-1c0-3.5-3.5-5-7-5z"/></svg>
+      Clientes
+    </button>
+  `);
+
+  // Si no hay FAB, agregar un placeholder para balancear el grid en 3 items
+  if (!isComm) {
+    items.splice(2, 0, '<div style="flex:0 0 auto;width:0;"></div>');
+  }
+
+  nav.innerHTML = items.join('');
 }
 
 // ============== FILTROS ==============
@@ -1344,7 +1471,143 @@ function render() {
   renderVisits();
   renderPending();
   renderClients();
+  renderNotes();
   updatePendingBadge();
+}
+
+// ============== NOTAS INTERNAS ==============
+function setNotesTab(tab, btn) {
+  state.notesTab = tab;
+  document.querySelectorAll('#notesFilter .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotes();
+}
+
+function renderNotes() {
+  if (!isDireccion()) return;
+  const content = document.getElementById('notesContent');
+  if (state.notesTab === 'missing') {
+    renderMissingProducts(content);
+  } else {
+    renderInternalNotes(content);
+  }
+}
+
+function renderInternalNotes(content) {
+  const pending = state.notes.filter(n => !n.done).sort((a,b) => b.createdAt - a.createdAt);
+  const done    = state.notes.filter(n =>  n.done).sort((a,b) => b.createdAt - a.createdAt);
+
+  content.innerHTML = `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:16px;">
+      <textarea id="newNoteText" placeholder="Escribe una nota, pendiente o cosa que pedirle a Alejandro..." style="width:100%;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;min-height:60px;font-weight:500;color:var(--text);"></textarea>
+      <button class="btn btn-primary" style="margin-top:10px;width:100%;" onclick="addNote()">+ Agregar nota</button>
+    </div>
+
+    ${pending.length === 0 && done.length === 0 ? `
+      <div class="empty">
+        <div class="title">Sin notas todavía</div>
+        <div class="sub">Lo que escribas aquí solo lo ven Florencia y Adrián</div>
+      </div>
+    ` : ''}
+
+    ${pending.length ? `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin:8px 0 10px;">Pendientes (${pending.length})</div>` : ''}
+    ${pending.map(noteCard).join('')}
+
+    ${done.length ? `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-3);margin:20px 0 10px;">Hechas (${done.length})</div>` : ''}
+    ${done.map(noteCard).join('')}
+  `;
+}
+
+function noteCard(n) {
+  const u = USERS.find(x => x.id === n.user);
+  return `
+    <div class="pending-card ${n.done ? 'done' : ''}" style="border-left-color:${n.done ? 'var(--text-4)' : 'var(--green)'};">
+      <div class="what">${escapeHtml(n.text)}</div>
+      <div class="meta-row" style="margin-top:8px;">
+        <span>${u ? u.short : ''} · ${formatDate(new Date(n.createdAt).toISOString().split('T')[0])}</span>
+        <div style="display:flex;gap:6px;">
+          <button class="mark-done" onclick="toggleNote('${n.id}')">${n.done ? 'Reabrir' : 'Marcar hecha'}</button>
+          ${n.user === state.user.id ? `<button class="mark-done" onclick="deleteNote('${n.id}')" style="color:var(--red);border-color:var(--red);">Eliminar</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function addNote() {
+  const text = document.getElementById('newNoteText').value.trim();
+  if (!text) { showToast('Escribe algo primero'); return; }
+  state.notes.push({
+    id: 'n_' + Date.now(),
+    user: state.user.id,
+    text,
+    done: false,
+    createdAt: Date.now()
+  });
+  saveData();
+  document.getElementById('newNoteText').value = '';
+  renderNotes();
+  showToast('Nota agregada ✓');
+}
+
+function toggleNote(id) {
+  const n = state.notes.find(x => x.id === id);
+  if (!n) return;
+  n.done = !n.done;
+  saveData();
+  renderNotes();
+}
+
+function deleteNote(id) {
+  if (!confirm('¿Eliminar esta nota?')) return;
+  state.notes = state.notes.filter(n => n.id !== id);
+  saveData();
+  renderNotes();
+}
+
+function renderMissingProducts(content) {
+  // Acumular todas las menciones de productos solicitados que no tenemos
+  const mentions = [];
+  state.visits.forEach(v => {
+    if (v.missing && v.missing.trim()) {
+      mentions.push({
+        text: v.missing,
+        client: v.client,
+        date: v.date,
+        visitId: v.id,
+        user: v.user
+      });
+    }
+  });
+  mentions.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  if (mentions.length === 0) {
+    content.innerHTML = `
+      <div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+        <div class="title">Sin solicitudes aún</div>
+        <div class="sub">Aquí se va a juntar lo que los clientes piden y no tenemos</div>
+      </div>
+    `;
+    return;
+  }
+
+  // Contar clientes por solicitud (key = lowercased text)
+  content.innerHTML = `
+    <div class="text-mini" style="margin-bottom:14px;">${mentions.length} menciones acumuladas en visitas. Útil para detectar demanda no atendida.</div>
+    ${mentions.map(m => {
+      const u = USERS.find(x => x.id === m.user);
+      return `
+        <div class="visit-card" onclick="openDetail('${m.visitId}')">
+          <div class="summary" style="font-weight:600;color:var(--text);margin-bottom:8px;">${escapeHtml(m.text)}</div>
+          <div class="meta-row" style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-3);font-weight:500;">
+            <span><b style="color:var(--text);">${escapeHtml(m.client)}</b> · ${u ? u.short : ''}</span>
+            <span>${formatDate(m.date)}</span>
+          </div>
+        </div>
+      `;
+    }).join('')}
+  `;
 }
 
 function renderStats() {
@@ -1424,9 +1687,10 @@ function renderVisits() {
           </div>
           <span class="badge ${result.badge}">${result.label}</span>
         </div>
-        ${v.hasOc ? `<div class="summary"><b>OC:</b> $${Number(v.ocAmount).toLocaleString('en-US')} USD${v.ocProducts ? ' · ' + escapeHtml(v.ocProducts) : ''}</div>` : ''}
+        ${v.hasOc ? `<div class="summary"><b>OC:</b> $${Number(v.ocAmount).toLocaleString('en-US')} USD${(v.ocProducts && Array.isArray(v.ocProducts) && v.ocProducts.length) ? ' · ' + v.ocProducts.length + ' producto' + (v.ocProducts.length===1?'':'s') : ''}</div>` : ''}
         ${!v.hasOc && v.notes ? `<div class="summary">${escapeHtml(v.notes)}</div>` : ''}
         ${!v.hasOc && !v.notes && v.missing ? `<div class="summary"><b>Pidieron:</b> ${escapeHtml(v.missing)}</div>` : ''}
+        ${v.comments && v.comments.length ? `<div class="meta" style="margin-bottom:8px;"><span style="color:var(--green);font-weight:600;">💬 ${v.comments.length} comentario${v.comments.length===1?'':'s'}</span></div>` : ''}
         ${v.nextWhat ? `
           <div class="footer">
             <div class="next"><b>Sigue:</b> ${escapeHtml(v.nextWhat)}</div>
@@ -1607,8 +1871,9 @@ function countMyPendings() {
 }
 
 function updatePendingBadge() {
-  const count = countMyPendings();
   const badge = document.getElementById('pendingBadge');
+  if (!badge) return; // dirección no tiene este badge
+  const count = countMyPendings();
   if (count > 0) { badge.style.display = 'inline-block'; badge.textContent = count; }
   else { badge.style.display = 'none'; }
 }
@@ -1647,17 +1912,22 @@ function filterByClient(clientName) {
 
 // ============== FORM ==============
 function openVisitForm() {
+  if (!isComercial()) { showToast('Solo Alejandro registra visitas'); return; }
   document.getElementById('formScreen').classList.add('active');
   document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
-  state.formState = { oc: false, missing: false, result: null };
+  state.formState = { oc: false, missing: false, result: null, ocProducts: [] };
 
-  ['f_client','f_city','f_ocAmount','f_ocDelivery','f_ocProducts','f_missing','f_pricing','f_nextWhat','f_nextDate','f_notes'].forEach(id => document.getElementById(id).value = '');
+  ['f_client','f_city','f_ocAmount','f_ocDelivery','f_productSearch','f_missing','f_pricing','f_nextWhat','f_nextDate','f_notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   document.getElementById('f_nextWho').value = '';
   document.querySelectorAll('#resultOptions .option-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('ocToggle').classList.remove('on');
   document.getElementById('missingToggle').classList.remove('on');
   document.getElementById('ocFields').classList.remove('active');
   document.getElementById('missingFields').classList.remove('active');
+  renderSelectedProducts();
 }
 
 function closeVisitForm() {
@@ -1688,6 +1958,94 @@ function populateUserSelects() {
     `<option value="${u.id}">${u.name}</option>`
   ).join('');
 }
+
+// ============== BUSCADOR DE PRODUCTOS (OC) ==============
+function searchProducts() {
+  const input = document.getElementById('f_productSearch');
+  const q = input.value.toLowerCase().trim();
+  const results = document.getElementById('productResults');
+
+  if (!q) {
+    results.innerHTML = '';
+    results.classList.remove('active');
+    return;
+  }
+
+  // Excluir los ya agregados
+  const selectedSkus = state.formState.ocProducts.map(p => p.sku);
+  let matches = PRODUCTS.filter(p =>
+    !selectedSkus.includes(p.sku) && (
+      p.name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      (p.brand || '').toLowerCase().includes(q)
+    )
+  ).slice(0, 10);
+
+  if (matches.length === 0) {
+    results.innerHTML = `<div class="client-result" style="color:var(--text-3);cursor:default;">Sin resultados en catálogo</div>`;
+    results.classList.add('active');
+    return;
+  }
+
+  results.innerHTML = matches.map(p => `
+    <div class="client-result" onclick="addProduct('${p.sku}')">
+      ${escapeHtml(p.name)}
+      <div class="type">${escapeHtml(p.sku)}${p.brand ? ' · ' + escapeHtml(p.brand) : ''} · ${escapeHtml(p.category)}</div>
+    </div>
+  `).join('');
+  results.classList.add('active');
+}
+
+function addProduct(sku) {
+  const p = PRODUCTS.find(x => x.sku === sku);
+  if (!p) return;
+  state.formState.ocProducts.push({ sku: p.sku, name: p.name, boxes: '' });
+  document.getElementById('f_productSearch').value = '';
+  document.getElementById('productResults').classList.remove('active');
+  renderSelectedProducts();
+  // Focus al input de cajas del producto recién agregado
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('.oc-product-box-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function removeProduct(sku) {
+  state.formState.ocProducts = state.formState.ocProducts.filter(p => p.sku !== sku);
+  renderSelectedProducts();
+}
+
+function updateProductBoxes(sku, val) {
+  const p = state.formState.ocProducts.find(x => x.sku === sku);
+  if (p) p.boxes = val;
+}
+
+function renderSelectedProducts() {
+  const container = document.getElementById('ocProductsSelected');
+  if (!container) return;
+  if (state.formState.ocProducts.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = state.formState.ocProducts.map(p => `
+    <div style="display:flex;gap:8px;align-items:center;background:var(--green-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:13px;color:var(--text);line-height:1.3;">${escapeHtml(p.name)}</div>
+        <div style="font-size:11px;color:var(--text-3);font-weight:500;">${escapeHtml(p.sku)}</div>
+      </div>
+      <input type="number" inputmode="numeric" class="oc-product-box-input" placeholder="cajas" value="${p.boxes}" onchange="updateProductBoxes('${p.sku}', this.value)" style="width:70px;padding:8px 10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;font-weight:600;text-align:center;-webkit-appearance:none;">
+      <button onclick="removeProduct('${p.sku}')" style="background:none;border:none;cursor:pointer;color:var(--red);padding:6px;font-weight:700;font-size:18px;line-height:1;">×</button>
+    </div>
+  `).join('');
+}
+
+// Cerrar resultados al hacer click fuera
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#f_productSearch') && !e.target.closest('#productResults')) {
+    const r = document.getElementById('productResults');
+    if (r) r.classList.remove('active');
+  }
+});
 
 function searchClients() {
   const input = document.getElementById('f_client');
@@ -1773,7 +2131,7 @@ function saveVisit() {
     hasOc:       state.formState.oc,
     ocAmount:    state.formState.oc ? document.getElementById('f_ocAmount').value : '',
     ocDelivery:  state.formState.oc ? document.getElementById('f_ocDelivery').value.trim() : '',
-    ocProducts:  state.formState.oc ? document.getElementById('f_ocProducts').value.trim() : '',
+    ocProducts:  state.formState.oc ? state.formState.ocProducts.filter(p => p.name).map(p => ({sku: p.sku, name: p.name, boxes: p.boxes || ''})) : [],
     hasMissing:  state.formState.missing,
     missing:     state.formState.missing ? document.getElementById('f_missing').value.trim() : '',
     pricing:     document.getElementById('f_pricing').value.trim(),
@@ -1781,7 +2139,8 @@ function saveVisit() {
     nextWho:     document.getElementById('f_nextWho').value,
     nextDate:    document.getElementById('f_nextDate').value,
     nextDone:    false,
-    notes:       document.getElementById('f_notes').value.trim()
+    notes:       document.getElementById('f_notes').value.trim(),
+    comments:    []
   };
 
   state.visits.push(visit);
@@ -1814,7 +2173,19 @@ function openDetail(id) {
       <div class="detail-section">
         <div class="lbl">Orden de compra</div>
         <div class="val"><b>$${Number(v.ocAmount).toLocaleString('en-US')} USD</b>${v.ocDelivery ? ' · Entrega ' + escapeHtml(v.ocDelivery) : ''}</div>
-        ${v.ocProducts ? `<div class="val" style="margin-top:6px;">${escapeHtml(v.ocProducts)}</div>` : ''}
+        ${(v.ocProducts && Array.isArray(v.ocProducts) && v.ocProducts.length) ? `
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+            ${v.ocProducts.map(p => `
+              <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 10px;background:var(--bg-alt);border-radius:var(--radius-sm);font-size:13px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:600;color:var(--text);line-height:1.3;">${escapeHtml(p.name)}</div>
+                  <div style="font-size:11px;color:var(--text-3);font-weight:500;">${escapeHtml(p.sku || '')}</div>
+                </div>
+                <div style="font-weight:700;color:var(--green);white-space:nowrap;">${p.boxes ? escapeHtml(p.boxes) + ' caja' + (p.boxes==='1'?'':'s') : '—'}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : (typeof v.ocProducts === 'string' && v.ocProducts ? `<div class="val" style="margin-top:6px;">${escapeHtml(v.ocProducts)}</div>` : '')}
       </div>
     ` : ''}
 
@@ -1849,6 +2220,31 @@ function openDetail(id) {
       </div>
     ` : ''}
 
+    <div class="detail-section">
+      <div class="lbl">Comentarios y dudas (${(v.comments || []).length})</div>
+      <div id="commentsList" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        ${(v.comments || []).length === 0
+          ? '<div class="text-mini" style="font-style:italic;">Sin comentarios aún</div>'
+          : v.comments.map(c => {
+              const cu = USERS.find(x => x.id === c.user);
+              return `
+                <div style="background:var(--bg-alt);border-radius:var(--radius-sm);padding:10px 12px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <span style="font-weight:700;font-size:13px;color:var(--text);">${cu ? cu.short : '—'}</span>
+                    <span class="text-mini">${formatRelativeTime(c.createdAt)}</span>
+                  </div>
+                  <div style="font-size:14px;color:var(--text-2);line-height:1.4;font-weight:500;">${escapeHtml(c.text)}</div>
+                </div>
+              `;
+            }).join('')
+        }
+      </div>
+      <div style="margin-top:10px;">
+        <textarea id="newCommentText" placeholder="Comenta o pregunta algo de esta visita..." style="width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-family:inherit;font-size:14px;resize:vertical;min-height:50px;font-weight:500;color:var(--text);"></textarea>
+        <button class="btn btn-primary" style="margin-top:8px;width:100%;padding:10px;font-size:14px;" onclick="addComment('${v.id}')">Agregar comentario</button>
+      </div>
+    </div>
+
     <div class="row" style="margin-top: 24px;">
       <button class="btn btn-ghost" onclick="closeDetail()">Cerrar</button>
       ${canEdit ? `<button class="btn btn-danger" onclick="deleteVisit('${v.id}')">Eliminar</button>` : ''}
@@ -1856,6 +2252,38 @@ function openDetail(id) {
     ${!canEdit ? `<div class="text-mini" style="text-align:center;margin-top:12px;">Solo ${user ? user.short : 'quien la creó'} puede editar esta visita</div>` : ''}
   `;
   document.getElementById('detailModal').classList.add('active');
+}
+
+function addComment(visitId) {
+  const text = document.getElementById('newCommentText').value.trim();
+  if (!text) { showToast('Escribe algo primero'); return; }
+  const v = state.visits.find(x => x.id === visitId);
+  if (!v) return;
+  if (!v.comments) v.comments = [];
+  v.comments.push({
+    id: 'c_' + Date.now(),
+    user: state.user.id,
+    text,
+    createdAt: Date.now()
+  });
+  saveData();
+  // Refresh detail
+  openDetail(visitId);
+  render();
+  showToast('Comentario agregado ✓');
+}
+
+function formatRelativeTime(ts) {
+  const now = Date.now();
+  const diff = now - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'ahora';
+  if (min < 60) return `hace ${min}m`;
+  const hrs = Math.floor(min / 60);
+  if (hrs < 24) return `hace ${hrs}h`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `hace ${days}d`;
+  return new Date(ts).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
 }
 
 function closeDetail() {
