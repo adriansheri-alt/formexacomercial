@@ -866,9 +866,9 @@
 
   .toast {
     position: fixed;
-    bottom: 100px;
+    top: max(72px, calc(env(safe-area-inset-top) + 60px));
     left: 50%;
-    transform: translateX(-50%) translateY(100px);
+    transform: translateX(-50%) translateY(-120px);
     background: var(--text);
     color: white;
     padding: 12px 20px;
@@ -878,6 +878,8 @@
     z-index: 300;
     box-shadow: var(--shadow-lg);
     transition: transform .3s ease;
+    max-width: calc(100vw - 32px);
+    text-align: center;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 </style>
@@ -1085,7 +1087,7 @@
       <div class="row" style="margin-top: 12px;">
         <div class="field" style="margin-bottom: 0;">
           <label>Monto aprox <span class="opt">(USD)</span></label>
-          <input type="number" id="f_ocAmount" placeholder="0" inputmode="numeric">
+          <input type="text" id="f_ocAmount" placeholder="0" inputmode="numeric" oninput="formatAmountInput(this)">
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label>Entrega <span class="opt">(opc.)</span></label>
@@ -1360,8 +1362,9 @@ async function loadData() {
     state.clients = clientsRes.data || [];
     state.notes   = (notesRes.data || []).map(noteFromDB);
   } catch (e) {
-    console.error('loadData error', e);
-    showToast('Error de conexión — revisa tu internet');
+    const msg = e?.message || e?.error_description || JSON.stringify(e);
+    console.error('loadData error:', msg, e);
+    showToast('Error: ' + msg.substring(0, 80));
   }
 }
 
@@ -1447,7 +1450,6 @@ async function login(userId) {
   setupNavForRole();
   setupFilters();
   populateUserSelects();
-  showToast('Cargando datos...');
   await loadData();
   render();
   subscribeRealtime();
@@ -2214,7 +2216,7 @@ async function saveVisit() {
     date:        document.getElementById('f_date').value || new Date().toISOString().split('T')[0],
     result:      state.formState.result,
     hasOc:       state.formState.oc,
-    ocAmount:    state.formState.oc ? document.getElementById('f_ocAmount').value : '',
+    ocAmount:    state.formState.oc ? document.getElementById('f_ocAmount').value.replace(/,/g, '') : '',
     ocDelivery:  state.formState.oc ? document.getElementById('f_ocDelivery').value.trim() : '',
     ocProducts:  state.formState.oc ? state.formState.ocProducts.filter(p => p.name).map(p => ({sku: p.sku, name: p.name, boxes: p.boxes || ''})) : [],
     hasMissing:  state.formState.missing,
@@ -2454,12 +2456,17 @@ function formatDate(d) {
 }
 
 let toastTimer;
+function formatAmountInput(input) {
+  const raw = input.value.replace(/[^\d]/g, '');
+  input.value = raw ? Number(raw).toLocaleString('en-US') : '';
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
 }
 
 // ============== INIT ==============
