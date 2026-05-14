@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --green: #1A5C38;
@@ -1286,31 +1287,104 @@ let state = {
   formState: { oc: false, missing: false, result: null, ocProducts: [] }
 };
 
-const DB_VERSION = 2;
+// ============== SUPABASE ==============
+const SUPABASE_URL = 'https://cwekoujkdkqkxthoqomg.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3ZWtvdWprZGtxa3h0aG9xb21nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg3NjY3MjcsImV4cCI6MjA5NDM0MjcyN30.rRU43-kRwObjqoYXjyeERFa_mZ_ia0vJfDJEOuV_Rdo';
+const supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ============== STORAGE ==============
-function loadData() {
+function visitFromDB(r) {
+  return {
+    id: r.id,
+    createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(),
+    user: r.user_id,
+    client: r.client,
+    clientStage: r.client_stage || '',
+    city: r.city || '',
+    date: r.date,
+    result: r.result,
+    hasOc: r.has_oc,
+    ocAmount: r.oc_amount || '',
+    ocDelivery: r.oc_delivery || '',
+    ocProducts: r.oc_products || [],
+    hasMissing: r.has_missing,
+    missing: r.missing || '',
+    pricing: r.pricing || '',
+    nextWhat: r.next_what || '',
+    nextWho: r.next_who || '',
+    nextDate: r.next_date || '',
+    nextDone: r.next_done,
+    notes: r.notes || '',
+    comments: r.comments || []
+  };
+}
+function visitToDB(v) {
+  return {
+    id: v.id,
+    user_id: v.user,
+    client: v.client,
+    client_stage: v.clientStage || '',
+    city: v.city || '',
+    date: v.date || null,
+    result: v.result,
+    has_oc: !!v.hasOc,
+    oc_amount: v.ocAmount || '',
+    oc_delivery: v.ocDelivery || '',
+    oc_products: v.ocProducts || [],
+    has_missing: !!v.hasMissing,
+    missing: v.missing || '',
+    pricing: v.pricing || '',
+    next_what: v.nextWhat || '',
+    next_who: v.nextWho || '',
+    next_date: v.nextDate || null,
+    next_done: !!v.nextDone,
+    notes: v.notes || '',
+    comments: v.comments || []
+  };
+}
+function noteFromDB(r) {
+  return { id: r.id, createdAt: r.created_at ? new Date(r.created_at).getTime() : Date.now(), user: r.user_id, text: r.text, done: r.done };
+}
+
+// ============== STORAGE (Supabase) ==============
+async function loadData() {
   try {
-    state.visits = JSON.parse(localStorage.getItem('fx_visits') || '[]');
-    state.notes  = JSON.parse(localStorage.getItem('fx_notes') || '[]');
-    const savedVersion = parseInt(localStorage.getItem('fx_db_version') || '0');
-    if (savedVersion < DB_VERSION) {
-      state.clients = [...SAMPLE_CLIENTS];
-      localStorage.setItem('fx_db_version', DB_VERSION);
-      saveData();
-    } else {
-      state.clients = JSON.parse(localStorage.getItem('fx_clients') || 'null') || SAMPLE_CLIENTS;
-    }
-  } catch(e) {
-    state.visits = [];
-    state.notes = [];
-    state.clients = [...SAMPLE_CLIENTS];
+    const [visitsRes, clientsRes, notesRes] = await Promise.all([
+      supa.from('visits').select('*').order('date', { ascending: false }),
+      supa.from('clients').select('*').order('name'),
+      supa.from('internal_notes').select('*').order('created_at', { ascending: false })
+    ]);
+    if (visitsRes.error)  throw visitsRes.error;
+    if (clientsRes.error) throw clientsRes.error;
+    if (notesRes.error)   throw notesRes.error;
+    state.visits  = (visitsRes.data || []).map(visitFromDB);
+    state.clients = clientsRes.data || [];
+    state.notes   = (notesRes.data || []).map(noteFromDB);
+  } catch (e) {
+    console.error('loadData error', e);
+    showToast('Error de conexión — revisa tu internet');
   }
 }
-function saveData() {
-  localStorage.setItem('fx_visits',  JSON.stringify(state.visits));
-  localStorage.setItem('fx_clients', JSON.stringify(state.clients));
-  localStorage.setItem('fx_notes',   JSON.stringify(state.notes));
+
+// Realtime: cualquier cambio en cualquier dispositivo se refleja en los demás
+function subscribeRealtime() {
+  supa.channel('public:visits')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'visits' }, async () => {
+      const { data } = await supa.from('visits').select('*').order('date', { ascending: false });
+      if (data) { state.visits = data.map(visitFromDB); render(); }
+    })
+    .subscribe();
+  supa.channel('public:internal_notes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'internal_notes' }, async () => {
+      const { data } = await supa.from('internal_notes').select('*').order('created_at', { ascending: false });
+      if (data) { state.notes = data.map(noteFromDB); renderNotes(); }
+    })
+    .subscribe();
+  supa.channel('public:clients')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'clients' }, async () => {
+      const { data } = await supa.from('clients').select('*').order('name');
+      if (data) { state.clients = data; renderClients(); }
+    })
+    .subscribe();
 }
 
 function initials(name) {
@@ -1359,7 +1433,7 @@ function loginSubmit() {
   }
 }
 
-function login(userId) {
+async function login(userId) {
   const user = USERS.find(u => u.id === userId);
   if (!user) return;
   state.user = user;
@@ -1373,7 +1447,10 @@ function login(userId) {
   setupNavForRole();
   setupFilters();
   populateUserSelects();
+  showToast('Cargando datos...');
+  await loadData();
   render();
+  subscribeRealtime();
 }
 
 function openUserMenu()  { document.getElementById('userMenu').classList.add('active'); }
@@ -1534,34 +1611,35 @@ function noteCard(n) {
   `;
 }
 
-function addNote() {
+async function addNote() {
   const text = document.getElementById('newNoteText').value.trim();
   if (!text) { showToast('Escribe algo primero'); return; }
-  state.notes.push({
-    id: 'n_' + Date.now(),
-    user: state.user.id,
-    text,
-    done: false,
-    createdAt: Date.now()
+  const note = { id: 'n_' + Date.now(), user: state.user.id, text, done: false, createdAt: Date.now() };
+  const { error } = await supa.from('internal_notes').insert({
+    id: note.id, user_id: note.user, text: note.text, done: false
   });
-  saveData();
+  if (error) { showToast('Error al guardar nota'); return; }
+  state.notes.unshift(note);
   document.getElementById('newNoteText').value = '';
   renderNotes();
   showToast('Nota agregada ✓');
 }
 
-function toggleNote(id) {
+async function toggleNote(id) {
   const n = state.notes.find(x => x.id === id);
   if (!n) return;
-  n.done = !n.done;
-  saveData();
+  const newVal = !n.done;
+  const { error } = await supa.from('internal_notes').update({ done: newVal }).eq('id', id);
+  if (error) { showToast('Error'); return; }
+  n.done = newVal;
   renderNotes();
 }
 
-function deleteNote(id) {
+async function deleteNote(id) {
   if (!confirm('¿Eliminar esta nota?')) return;
+  const { error } = await supa.from('internal_notes').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar'); return; }
   state.notes = state.notes.filter(n => n.id !== id);
-  saveData();
   renderNotes();
 }
 
@@ -2088,11 +2166,16 @@ function pickClient(name, place) {
   document.getElementById('clientResults').classList.remove('active');
 }
 
-function addNewClient(name) {
+async function addNewClient(name) {
   if (!name.trim()) return;
   const newClient = { name: name.trim(), stage: 'new', contact: '', phone: '', place: '', credit: '', email: '' };
-  state.clients.push(newClient);
-  saveData();
+  const { error } = await supa.from('clients').insert(newClient);
+  if (error && !error.message.includes('duplicate')) {
+    showToast('Error al agregar'); return;
+  }
+  if (!state.clients.find(c => c.name === newClient.name)) {
+    state.clients.push(newClient);
+  }
   pickClient(newClient.name, '');
   showToast('Agregado como prospecto nuevo');
 }
@@ -2103,18 +2186,20 @@ document.addEventListener('click', (e) => {
   }
 });
 
-function saveVisit() {
+async function saveVisit() {
   const client = document.getElementById('f_client').value.trim();
   if (!client) { showToast('Falta el cliente'); return; }
   if (!state.formState.result) { showToast('Selecciona el resultado'); return; }
 
   if (!state.clients.find(c => c.name === client)) {
-    state.clients.push({
+    const newClient = {
       name: client,
       stage: 'new',
       contact: '', phone: '', email: '', credit: '',
       place: document.getElementById('f_city').value.trim()
-    });
+    };
+    const { error } = await supa.from('clients').insert(newClient);
+    if (!error) state.clients.push(newClient);
   }
 
   const clientStage = state.clients.find(c => c.name === client)?.stage || 'new';
@@ -2143,8 +2228,13 @@ function saveVisit() {
     comments:    []
   };
 
+  const { error } = await supa.from('visits').insert(visitToDB(visit));
+  if (error) {
+    console.error(error);
+    showToast('Error al guardar: ' + (error.message || 'revisa internet'));
+    return;
+  }
   state.visits.push(visit);
-  saveData();
   closeVisitForm();
   render();
   showToast('Visita guardada ✓');
@@ -2254,20 +2344,17 @@ function openDetail(id) {
   document.getElementById('detailModal').classList.add('active');
 }
 
-function addComment(visitId) {
+async function addComment(visitId) {
   const text = document.getElementById('newCommentText').value.trim();
   if (!text) { showToast('Escribe algo primero'); return; }
   const v = state.visits.find(x => x.id === visitId);
   if (!v) return;
   if (!v.comments) v.comments = [];
-  v.comments.push({
-    id: 'c_' + Date.now(),
-    user: state.user.id,
-    text,
-    createdAt: Date.now()
-  });
-  saveData();
-  // Refresh detail
+  const newComment = { id: 'c_' + Date.now(), user: state.user.id, text, createdAt: Date.now() };
+  const newComments = [...v.comments, newComment];
+  const { error } = await supa.from('visits').update({ comments: newComments }).eq('id', visitId);
+  if (error) { showToast('Error al comentar'); return; }
+  v.comments = newComments;
   openDetail(visitId);
   render();
   showToast('Comentario agregado ✓');
@@ -2290,45 +2377,47 @@ function closeDetail() {
   document.getElementById('detailModal').classList.remove('active');
 }
 
-function deleteVisit(id) {
+async function deleteVisit(id) {
   const v = state.visits.find(x => x.id === id);
   if (!v) return;
   if (v.user !== state.user.id) { showToast('Solo quien la creó puede eliminarla'); return; }
   if (!confirm('¿Eliminar esta visita? No se puede deshacer.')) return;
+  const { error } = await supa.from('visits').delete().eq('id', id);
+  if (error) { showToast('Error al eliminar'); return; }
   state.visits = state.visits.filter(v => v.id !== id);
-  saveData();
   closeDetail();
   render();
   showToast('Visita eliminada');
 }
 
-function togglePending(id) {
+async function togglePending(id) {
   const v = state.visits.find(x => x.id === id);
   if (!v) return;
   if (v.nextWho !== state.user.id && v.user !== state.user.id) {
     showToast('Solo el responsable puede marcarla'); return;
   }
-  v.nextDone = !v.nextDone;
-  saveData();
+  const newVal = !v.nextDone;
+  const { error } = await supa.from('visits').update({ next_done: newVal }).eq('id', id);
+  if (error) { showToast('Error'); return; }
+  v.nextDone = newVal;
   render();
   showToast(v.nextDone ? 'Marcado como hecho ✓' : 'Reabierto');
 }
 
 // ============== IMPORT / EXPORT ==============
-function importClients() {
+async function importClients() {
   const text = prompt('Pega los nombres de clientes (uno por línea):');
   if (!text) return;
-  const newClients = text.split('\n').map(l => l.trim()).filter(Boolean);
-  let added = 0;
-  newClients.forEach(name => {
-    if (!state.clients.find(c => c.name.toLowerCase() === name.toLowerCase())) {
-      state.clients.push({ name, stage: 'new', contact: '', phone: '', place: '', credit: '', email: '' });
-      added++;
-    }
-  });
-  saveData();
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const toInsert = lines
+    .filter(name => !state.clients.find(c => c.name.toLowerCase() === name.toLowerCase()))
+    .map(name => ({ name, stage: 'new', contact: '', phone: '', place: '', credit: '', email: '' }));
+  if (toInsert.length === 0) { showToast('Sin nuevos para agregar'); return; }
+  const { error } = await supa.from('clients').insert(toInsert);
+  if (error) { showToast('Error al importar: ' + error.message); return; }
+  state.clients.push(...toInsert);
   renderClients();
-  showToast(`${added} cuenta${added === 1 ? '' : 's'} agregada${added === 1 ? '' : 's'}`);
+  showToast(`${toInsert.length} cliente${toInsert.length === 1 ? '' : 's'} agregado${toInsert.length === 1 ? '' : 's'}`);
 }
 
 function exportData() {
@@ -2374,7 +2463,6 @@ function showToast(msg) {
 }
 
 // ============== INIT ==============
-loadData();
 renderLogin();
 const savedUser = localStorage.getItem('fx_user');
 if (savedUser && USERS.find(u => u.id === savedUser)) login(savedUser);
